@@ -8,7 +8,7 @@
 class Weekday : public BaseObject
 {
 public:
-    Weekday(int day) : day_(day), id_(-1)
+    Weekday(int day) : id_(-1), day_(day)
     {
         if (day < 1 || day > 7)
         {
@@ -40,5 +40,7 @@ private:
     int id_;
     int day_;
 
-    static const std::array<std::string, 7> DAYS;
+    inline static const std::array<std::string, 7> DAYS = {
+        "Monday", "Tuesday",  "Wednesday", "Thursday",
+        "Friday", "Saturday", "Sunday"};
 };

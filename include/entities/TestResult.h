@@ -6,8 +6,8 @@
 class TestResult : public BaseObject
 {
 public:
-    TestResult(int id, int idVisit, int idTest, std::string& result)
-        : id_(id), idVisit_(idVisit), idTest_(idTest), result_(result)
+    TestResult(int idVisit, int idTest, std::string& result)
+        : id_(-1), idVisit_(idVisit), idTest_(idTest), result_(result)
     {
     }
 

@@ -6,8 +6,8 @@
 class PrescribedProcedure : public BaseObject
 {
 public:
-    PrescribedProcedure(int id, int idVisit, int idProcedure, int count)
-        : id_(id), idVisit_(idVisit), idProcedure_(idProcedure), count_(count)
+    PrescribedProcedure(int idVisit, int idProcedure, int count)
+        : id_(-1), idVisit_(idVisit), idProcedure_(idProcedure), count_(count)
     {
     }
 

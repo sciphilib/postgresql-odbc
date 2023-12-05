@@ -3,6 +3,13 @@ CXX = g++
 CXXFLAGS = -Wall -Iinclude $(shell find include -type d | sed 's/^/-I/')
 LDFLAGS = -lodbc
 
+# boost
+BOOST_INCLUDE = /usr/lib/boost/include
+BOOST_LIB = /usr/lib/boost/lib
+
+CXXFLAGS += -I$(BOOST_INCLUDE)
+LDFLAGS += -L$(BOOST_LIB) -lboost_locale
+
 # dirs
 SRCDIR = src
 OBJDIR = obj

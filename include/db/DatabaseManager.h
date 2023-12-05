@@ -19,6 +19,7 @@ private:
     SQLHDBC hDbc;
     SQLHSTMT hStmt;
     std::string dsn_, user_, pass_;
+    DatabaseFacade databaseFacade;
     void connect();
     void initDatabase();
 
@@ -35,6 +36,21 @@ private:
     void createTableProcedures();
     void createTablePrescribedProcedures();
     void createTableTests();
-    void createTableTestsResults();
+    void createTableTestResults();
     void createTableDiagnosis();
+
+    void insertAll();
+    void insertWeekdays();
+    void insertSpecializations();
+    void insertDoctors();
+    void insertAppointments();
+    void insertPatients();
+    void insertMedications();
+    void insertVisits();
+    void insertPrescribedMedications();
+    void insertProcedures();
+    void insertPrescribedProcedures();
+    void insertTests();
+    void insertTestResults();
+    void insertDiagnosis();
 };

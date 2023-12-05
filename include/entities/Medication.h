@@ -6,7 +6,7 @@
 class Medication : public BaseObject
 {
 public:
-    Medication(int id, std::string& name) : id_(id), name_(name) {}
+    Medication(std::string& name) : id_(-1), name_(name) {}
 
     int getId() const { return id_; }
     std::string getName() const { return name_; }

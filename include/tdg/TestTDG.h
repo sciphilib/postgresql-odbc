@@ -1,22 +1,22 @@
 #pragma once
 
 #include "TableDataGateway.h"
-#include "Weekday.h"
+#include "Test.h"
 #include <iostream>
 
-class WeekdayTDG : public TableDataGateway
+class TestTDG : public TableDataGateway
 {
 public:
-    WeekdayTDG(SQLHDBC hDbc) : TableDataGateway(hDbc) {}
+    TestTDG(SQLHDBC hDbc) : TableDataGateway(hDbc) {}
 
     void insert(const BaseObject& object) override
     {
-        const Weekday& weekday = dynamic_cast<const Weekday&>(object);
+        const Test& test = dynamic_cast<const Test&>(object);
 
         SQLHSTMT hStmt;
         SQLAllocHandle(SQL_HANDLE_STMT, hDbc_, &hStmt);
 
-        SQLCHAR insertQuery[] = "INSERT INTO weekdays (name) VALUES (?)";
+        SQLCHAR insertQuery[] = "INSERT INTO tests (name) VALUES (?)";
         if (SQLPrepare(hStmt, insertQuery, SQL_NTS) != SQL_SUCCESS)
         {
             std::cerr << "Error: failed to prepare the SQL statement."
@@ -25,9 +25,10 @@ public:
             return;
         }
 
+        std::string testUtf8 = to_utf8(test.getName());
         if (SQLBindParameter(hStmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR,
-                             0, 0, (SQLCHAR*)weekday.toString().c_str(), 0,
-                             nullptr) != SQL_SUCCESS)
+                             testUtf8.length(), 0, (SQLCHAR*)testUtf8.c_str(),
+                             0, nullptr) != SQL_SUCCESS)
         {
             std::cerr << "Error: failed to bind parameters." << std::endl;
             SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
@@ -39,12 +40,12 @@ public:
         {
             SQLGetDiagRec(SQL_HANDLE_STMT, hStmt, 1, sqlState, &nativeError,
                           message, 1000, &textLength);
-            std::cerr << "Error: can not insert weekday. Message: " << message
+            std::cerr << "Error: can not insert test. Message: " << message
                       << ", SQL State: " << sqlState << std::endl;
             SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
             return;
         }
-        std::cout << "Success: weekday was successfully added." << std::endl;
+        std::cout << "Success: test was successfully added." << std::endl;
 
         SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
     }

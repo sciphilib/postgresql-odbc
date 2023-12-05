@@ -6,8 +6,8 @@
 class Diagnosis : public BaseObject
 {
 public:
-    Diagnosis(int id, int idVisit, std::string& description)
-        : id_(id), idVisit_(idVisit), description_(description)
+    Diagnosis(int idVisit, std::string& description)
+        : id_(-1), idVisit_(idVisit), description_(description)
     {
     }
 

@@ -6,9 +6,9 @@
 class Patient : public BaseObject
 {
 public:
-    Patient(int id, std::string& lastName, std::string& firstName,
+    Patient(std::string& lastName, std::string& firstName,
             std::string& middleName, std::string& address)
-        : id_(id), lastName_(lastName), firstName_(firstName),
+        : id_(-1), lastName_(lastName), firstName_(firstName),
           middleName_(middleName), address_(address)
     {
     }
