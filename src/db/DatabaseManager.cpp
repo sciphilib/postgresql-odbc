@@ -1,4 +1,5 @@
 #include "DatabaseManager.h"
+#include <sqltypes.h>
 
 DatabaseManager::DatabaseManager(const std::string& dsn,
                                  const std::string& user,
@@ -19,14 +20,12 @@ DatabaseManager::~DatabaseManager()
 
 void DatabaseManager::connect()
 {
-    // Выделение среды
     if (SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &hEnv) == SQL_ERROR)
     {
         std::cerr << "Error allocating an environment handle\n";
         exit(-1);
     }
 
-    // Установка ODBC версии 3
     if (SQLSetEnvAttr(hEnv, SQL_ATTR_ODBC_VERSION, (void*)SQL_OV_ODBC3, 0) ==
         SQL_ERROR)
     {
@@ -34,14 +33,12 @@ void DatabaseManager::connect()
         exit(-1);
     }
 
-    // Выделение соединения
     if (SQLAllocHandle(SQL_HANDLE_DBC, hEnv, &hDbc) == SQL_ERROR)
     {
         std::cerr << "Error allocating a database connection handle\n";
         exit(-1);
     }
 
-    // Подключение к источнику данных
     int retcode = SQLConnect(hDbc, (SQLCHAR*)"PostgreSQLDSN", SQL_NTS,
                              (SQLCHAR*)"sciphilib", SQL_NTS,
                              (SQLCHAR*)"sciphilib", SQL_NTS);
@@ -51,23 +48,215 @@ void DatabaseManager::connect()
         exit(-1);
     }
 
-    // Выделение оператора
     if (SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt) == SQL_ERROR)
     {
         std::cerr << "Error allocating a statement handle\n";
         exit(-1);
     }
+
+    SQLCHAR setEncoding[] = "SET client_encoding TO 'UTF8'";
+    SQLExecDirect(hStmt, setEncoding, SQL_NTS);
+
+    SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+
+    databaseFacade.setHdbc(hDbc);
 }
 
 void DatabaseManager::initDatabase()
 {
     createTableAll();
+    insertAll();
     Parser parser;
     parser.parseAppointment("data/appointments.json");
     parser.printAppointments();
-    DatabaseFacade databaseFacade(hDbc);
-    databaseFacade.addWeekday("Monday");
     return;
+}
+
+void DatabaseManager::insertAll()
+{
+    std::cout << "~~~~ Table inserting ~~~~" << std::endl;
+    insertWeekdays();
+    insertSpecializations();
+    insertDoctors();
+    insertAppointments();
+    insertPatients();
+    insertMedications();
+    insertVisits();
+    insertPrescribedMedications();
+    insertProcedures();
+    insertPrescribedProcedures();
+    insertTests();
+    insertTestResults();
+    insertDiagnosis();
+}
+
+void DatabaseManager::insertDiagnosis()
+{
+    databaseFacade.addDiagnosis(1, "Unspecified essential hypertension");
+    databaseFacade.addDiagnosis(2, "Lumbago");
+    databaseFacade.addDiagnosis(3, "Routine general medical examination at a healthcare facility");
+    databaseFacade.addDiagnosis(4, "Atrial fibrillation");
+    databaseFacade.addDiagnosis(5, "Coronary artery atherosclerosis");
+}
+
+void DatabaseManager::insertTestResults()
+{
+    databaseFacade.addTestResult(1, 1, "Everything's fine, no abnormalities.");
+    databaseFacade.addTestResult(2, 2, "Some above-average readings, retest");
+    databaseFacade.addTestResult(3, 3, "Some below average, retreatment");
+    databaseFacade.addTestResult(4, 4, "Pathology detected");
+    databaseFacade.addTestResult(5, 5, "Tests were taken incorrectly");
+}
+
+void DatabaseManager::insertTests()
+{
+    databaseFacade.addTest("Blood test");
+    databaseFacade.addTest("HBA1C test");
+    databaseFacade.addTest("Liver function test");
+    databaseFacade.addTest("Thyroid profile test");
+    databaseFacade.addTest("HCG test");
+}
+
+void DatabaseManager::insertPrescribedProcedures()
+{
+    databaseFacade.addPrescribedProcedure(1, 1, 10);
+    databaseFacade.addPrescribedProcedure(1, 2, 2);
+    databaseFacade.addPrescribedProcedure(1, 3, 1);
+    databaseFacade.addPrescribedProcedure(2, 4, 8);
+    databaseFacade.addPrescribedProcedure(3, 5, 3);
+    databaseFacade.addPrescribedProcedure(4, 1, 1);
+    databaseFacade.addPrescribedProcedure(5, 2, 1);
+}
+
+void DatabaseManager::insertProcedures()
+{
+    databaseFacade.addProcedure("Physiotherapy");
+    databaseFacade.addProcedure("Rest");
+    databaseFacade.addProcedure("Magnetic resonance imaging");
+    databaseFacade.addProcedure("X-ray");
+    databaseFacade.addProcedure("Breathing exercises");
+}
+
+void DatabaseManager::insertPrescribedMedications()
+{
+    databaseFacade.addPrescribedMedication(1, 1);
+    databaseFacade.addPrescribedMedication(1, 2);
+    databaseFacade.addPrescribedMedication(1, 3);
+    databaseFacade.addPrescribedMedication(2, 2);
+    databaseFacade.addPrescribedMedication(3, 3);
+    databaseFacade.addPrescribedMedication(4, 4);
+    databaseFacade.addPrescribedMedication(5, 5);
+}
+
+void DatabaseManager::insertVisits()
+{
+    bool isOnlyTime = false;
+    databaseFacade.addVisit(1, 1, "Severe headaches",
+                            DateTime("2023-12-01 10:00", isOnlyTime),
+                            DateTime("2023-12-03 11:00", isOnlyTime),
+                            DateTime("2023-12-03 11:05", isOnlyTime));
+    databaseFacade.addVisit(2, 2, "Muscle spasms",
+                            DateTime("2023-12-01 18:00", isOnlyTime),
+                            DateTime("2023-12-02 12:45", isOnlyTime),
+                            DateTime("2023-12-02 13:00", isOnlyTime));
+    databaseFacade.addVisit(3, 3, "Dizzines and loss of consciousness",
+                            DateTime("2023-12-03 18:12", isOnlyTime),
+                            DateTime("2023-12-06 09:00", isOnlyTime),
+                            DateTime("2023-12-06 11:55", isOnlyTime));
+    databaseFacade.addVisit(4, 4, "Weakness, apathy",
+                            DateTime("2023-12-04 11:11", isOnlyTime),
+                            DateTime("2023-12-04 12:45", isOnlyTime),
+                            DateTime("2023-12-04 13:45", isOnlyTime));
+    databaseFacade.addVisit(5, 5, "Drowsiness, loss of attention",
+                            DateTime("2023-12-07 19:00", isOnlyTime),
+                            DateTime("2023-12-11 19:00", isOnlyTime),
+                            DateTime("2023-12-11 20:05", isOnlyTime));
+}
+
+void DatabaseManager::insertMedications()
+{
+    databaseFacade.addMedication("Atorvastatin");
+    databaseFacade.addMedication("Levothyroxine");
+    databaseFacade.addMedication("Metformin");
+    databaseFacade.addMedication("Lisinopril");
+    databaseFacade.addMedication("Amlodipine");
+    databaseFacade.addMedication("Metoprolol");
+    databaseFacade.addMedication("Albuterol");
+}
+
+void DatabaseManager::insertPatients()
+{
+    databaseFacade.addPatient(
+        "Shpeyser", "Egor", "Vladimirovich",
+        "Novosibirsk, Koshurnikova st., building 101, flat 245");
+    databaseFacade.addPatient(
+        "Tomm", "Ivan", "Ivanovich",
+        "Novosibirsk, Koshurnikova st., building 12, flat 8");
+    databaseFacade.addPatient("Dubinin", "Vladimir", "Sergeevich",
+                              "Novosibirsk, Stofato st., building 85, flat 25");
+    databaseFacade.addPatient(
+        "Demkin", "Egor", "Dmitrievich",
+        "Novosibirsk, Sovetskaya st., building 80, flat 55");
+    databaseFacade.addPatient("Kuptsov", "Nikolay", "Nikolaevich",
+                              "Novosibirsk, Esenina st., building 1, flat 1");
+}
+
+void DatabaseManager::insertAppointments()
+{
+    bool isOnlyTime = true;
+    databaseFacade.addAppointment(1, 1, DateTime("15:30", isOnlyTime),
+                                  DateTime("18:00", isOnlyTime), 12, 101);
+    databaseFacade.addAppointment(1, 2, DateTime("08:30", isOnlyTime),
+                                  DateTime("16:30", isOnlyTime), 12, 101);
+    databaseFacade.addAppointment(1, 3, DateTime("15:30", isOnlyTime),
+                                  DateTime("19:00", isOnlyTime), 12, 101);
+    databaseFacade.addAppointment(2, 4, DateTime("18:30", isOnlyTime),
+                                  DateTime("21:30", isOnlyTime), 18, 123);
+    databaseFacade.addAppointment(2, 5, DateTime("19:30", isOnlyTime),
+                                  DateTime("22:30", isOnlyTime), 18, 123);
+    databaseFacade.addAppointment(2, 6, DateTime("13:30", isOnlyTime),
+                                  DateTime("17:00", isOnlyTime), 19, 123);
+    databaseFacade.addAppointment(3, 1, DateTime("9:00", isOnlyTime),
+                                  DateTime("14:15", isOnlyTime), 25, 111);
+    databaseFacade.addAppointment(3, 5, DateTime("15:30", isOnlyTime),
+                                  DateTime("18:30", isOnlyTime), 25, 111);
+    databaseFacade.addAppointment(4, 3, DateTime("10:30", isOnlyTime),
+                                  DateTime("11:45", isOnlyTime), 85, 234);
+    databaseFacade.addAppointment(5, 1, DateTime("15:30", isOnlyTime),
+                                  DateTime("20:00", isOnlyTime), 99, 331);
+    databaseFacade.addAppointment(6, 3, DateTime("13:30", isOnlyTime),
+                                  DateTime("17:00", isOnlyTime), 100, 5);
+}
+
+void DatabaseManager::insertDoctors()
+{
+    databaseFacade.addDoctor("Ivanov", "Ivan", "Ivanovich", 1);
+    databaseFacade.addDoctor("Perelman", "Egor", "Victorovich", 2);
+    databaseFacade.addDoctor("Eyfeld", "Evgeny", "Alexsandrovich", 3);
+    databaseFacade.addDoctor("Sinitsyn", "Vladimir", "Vladimirovich", 4);
+    databaseFacade.addDoctor("Kotov", "Dmitry", "Platonovich", 5);
+    databaseFacade.addDoctor("Kuznetsov", "Artyom", "Igorevich", 6);
+}
+
+void DatabaseManager::insertWeekdays()
+{
+    databaseFacade.addWeekday("Monday");
+    databaseFacade.addWeekday("Tuesday");
+    databaseFacade.addWeekday("Wednesday");
+    databaseFacade.addWeekday("Thursday");
+    databaseFacade.addWeekday("Friday");
+    databaseFacade.addWeekday("Saturday");
+    databaseFacade.addWeekday("Sunday");
+}
+
+void DatabaseManager::insertSpecializations()
+{
+    databaseFacade.addSpecialization("Surgeon");
+    databaseFacade.addSpecialization("Pediatrician");
+    databaseFacade.addSpecialization("Neurosurgeon");
+    databaseFacade.addSpecialization("Internist");
+    databaseFacade.addSpecialization("Ophthalmologist");
+    databaseFacade.addSpecialization("Trauma surgeon");
 }
 
 void DatabaseManager::createTableAll()
@@ -84,7 +273,7 @@ void DatabaseManager::createTableAll()
     createTableProcedures();
     createTablePrescribedProcedures();
     createTableTests();
-    createTableTestsResults();
+    createTableTestResults();
     createTableDiagnosis();
 }
 
@@ -147,8 +336,9 @@ void DatabaseManager::createTableSpecializations()
         }
         else
         {
-            SQLCHAR createTableQuery[] = "CREATE TABLE specializations (id INT "
-                                         "PRIMARY KEY, name VARCHAR(255))";
+            SQLCHAR createTableQuery[] =
+                "CREATE TABLE specializations (id SERIAL "
+                "PRIMARY KEY, name VARCHAR(255))";
             SQLRETURN createRet =
                 SQLExecDirect(hStmt, createTableQuery, SQL_NTS);
 
@@ -159,9 +349,9 @@ void DatabaseManager::createTableSpecializations()
             }
             else
             {
-                std::cerr
-                    << "Error while trying to create table 'specializations'."
-                    << std::endl;
+                std::cerr << "Error while trying to create table "
+                             "'specializations'."
+                          << std::endl;
             }
         }
     }
@@ -190,8 +380,9 @@ void DatabaseManager::createTableDoctors()
         else
         {
             SQLCHAR createTableQuery[] =
-                "CREATE TABLE doctors (id INT "
-                "PRIMARY KEY, last_name VARCHAR(255), first_name VARCHAR(255), "
+                "CREATE TABLE doctors (id SERIAL "
+                "PRIMARY KEY, last_name VARCHAR(255), first_name "
+                "VARCHAR(255), "
                 "middle_name VARCHAR(255), id_spec INT REFERENCES "
                 "Specializations(id))";
             SQLRETURN createRet =
@@ -234,9 +425,11 @@ void DatabaseManager::createTableAppointments()
         else
         {
             SQLCHAR createTableQuery[] =
-                "CREATE TABLE appointments (id INT "
-                "PRIMARY KEY, id_doctor INT REFERENCES Doctors(id), id_weekday "
-                "INT REFERENCES weekdays(id), begin_date DATE, end_date DATE, "
+                "CREATE TABLE appointments (id SERIAL "
+                "PRIMARY KEY, id_doctor INT REFERENCES Doctors(id), "
+                "id_weekday "
+                "INT REFERENCES weekdays(id), begin_date TIME, end_date "
+                "TIME, "
                 "office INT, district INT)";
             SQLRETURN createRet =
                 SQLExecDirect(hStmt, createTableQuery, SQL_NTS);
@@ -279,8 +472,9 @@ void DatabaseManager::createTablePatients()
         else
         {
             SQLCHAR createTableQuery[] =
-                "CREATE TABLE patients (id INT "
-                "PRIMARY KEY, last_name VARCHAR(255), first_name VARCHAR(255), "
+                "CREATE TABLE patients (id SERIAL "
+                "PRIMARY KEY, last_name VARCHAR(255), first_name "
+                "VARCHAR(255), "
                 "middle_name VARCHAR(255), address VARCHAR(255))";
             SQLRETURN createRet =
                 SQLExecDirect(hStmt, createTableQuery, SQL_NTS);
@@ -322,10 +516,12 @@ void DatabaseManager::createTableVisits()
         else
         {
             SQLCHAR createTableQuery[] =
-                "CREATE TABLE visits (id INT "
+                "CREATE TABLE visits (id SERIAL "
                 "PRIMARY KEY, id_patient INT REFERENCES patients(id), "
-                "date_visit DATE, complaints VARCHAR(255), date_discharge "
-                "DATE, date_close DATE)";
+                "id_doctor INT REFERENCES doctors(id), complaints VARCHAR(255),"
+                "date_visit TIMESTAMP WITHOUT TIME ZONE, date_discharge "
+                "TIMESTAMP WITHOUT TIME ZONE, date_close TIMESTAMP WITHOUT "
+                "TIME ZONE)";
             SQLRETURN createRet =
                 SQLExecDirect(hStmt, createTableQuery, SQL_NTS);
 
@@ -365,7 +561,7 @@ void DatabaseManager::createTableMedications()
         }
         else
         {
-            SQLCHAR createTableQuery[] = "CREATE TABLE medications (id INT "
+            SQLCHAR createTableQuery[] = "CREATE TABLE medications (id SERIAL "
                                          "PRIMARY KEY, name VARCHAR(255))";
             SQLRETURN createRet =
                 SQLExecDirect(hStmt, createTableQuery, SQL_NTS);
@@ -409,7 +605,7 @@ void DatabaseManager::createTablePrescribedMedications()
         else
         {
             SQLCHAR createTableQuery[] =
-                "CREATE TABLE prescribed_medications (id INT "
+                "CREATE TABLE prescribed_medications (id SERIAL "
                 "PRIMARY KEY, id_visit INT REFERENCES visits(id), "
                 "id_medication INT REFERENCES medications(id))";
             SQLRETURN createRet =
@@ -417,9 +613,9 @@ void DatabaseManager::createTablePrescribedMedications()
 
             if (createRet == SQL_SUCCESS || createRet == SQL_SUCCESS_WITH_INFO)
             {
-                std::cout
-                    << "Table 'prescribed_medications' was succesfully created."
-                    << std::endl;
+                std::cout << "Table 'prescribed_medications' was "
+                             "succesfully created."
+                          << std::endl;
             }
             else
             {
@@ -453,7 +649,7 @@ void DatabaseManager::createTableProcedures()
         }
         else
         {
-            SQLCHAR createTableQuery[] = "CREATE TABLE procedures (id INT "
+            SQLCHAR createTableQuery[] = "CREATE TABLE procedures (id SERIAL "
                                          "PRIMARY KEY, name VARCHAR(255))";
             SQLRETURN createRet =
                 SQLExecDirect(hStmt, createTableQuery, SQL_NTS);
@@ -497,8 +693,9 @@ void DatabaseManager::createTablePrescribedProcedures()
         else
         {
             SQLCHAR createTableQuery[] =
-                "CREATE TABLE prescribed_procedures (id INT "
-                "PRIMARY KEY, id_visit INT REFERENCES visits(id), id_procedure "
+                "CREATE TABLE prescribed_procedures (id SERIAL "
+                "PRIMARY KEY, id_visit INT REFERENCES visits(id), "
+                "id_procedure "
                 "INT REFERENCES procedures(id),"
                 "count INT)";
             SQLRETURN createRet =
@@ -506,9 +703,9 @@ void DatabaseManager::createTablePrescribedProcedures()
 
             if (createRet == SQL_SUCCESS || createRet == SQL_SUCCESS_WITH_INFO)
             {
-                std::cout
-                    << "Table 'prescribed_medications' was succesfully created."
-                    << std::endl;
+                std::cout << "Table 'prescribed_medications' was "
+                             "succesfully created."
+                          << std::endl;
             }
             else
             {
@@ -542,7 +739,7 @@ void DatabaseManager::createTableTests()
         }
         else
         {
-            SQLCHAR createTableQuery[] = "CREATE TABLE tests (id INT "
+            SQLCHAR createTableQuery[] = "CREATE TABLE tests (id SERIAL "
                                          "PRIMARY KEY, name VARCHAR(255))";
             SQLRETURN createRet =
                 SQLExecDirect(hStmt, createTableQuery, SQL_NTS);
@@ -567,26 +764,24 @@ void DatabaseManager::createTableTests()
     SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 }
 
-void DatabaseManager::createTableTestsResults()
+void DatabaseManager::createTableTestResults()
 {
     SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt);
 
-    SQLCHAR query[] =
-        "SELECT 1 FROM information_schema.tables WHERE "
-        "table_schema = 'public' AND table_name = 'tests_results'";
+    SQLCHAR query[] = "SELECT 1 FROM information_schema.tables WHERE "
+                      "table_schema = 'public' AND table_name = 'test_results'";
     SQLRETURN ret = SQLExecDirect(hStmt, query, SQL_NTS);
 
     if (ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO)
     {
         if (SQLFetch(hStmt) == SQL_SUCCESS)
         {
-            std::cout << "Table 'tests_results' is already exists."
-                      << std::endl;
+            std::cout << "Table 'test_results' is already exists." << std::endl;
         }
         else
         {
             SQLCHAR createTableQuery[] =
-                "CREATE TABLE tests_results (id INT "
+                "CREATE TABLE test_results (id SERIAL "
                 "PRIMARY KEY, id_visit INT REFERENCES visits(id), id_test "
                 "INT REFERENCES tests(id), result VARCHAR(255))";
             SQLRETURN createRet =
@@ -594,13 +789,13 @@ void DatabaseManager::createTableTestsResults()
 
             if (createRet == SQL_SUCCESS || createRet == SQL_SUCCESS_WITH_INFO)
             {
-                std::cout << "Table 'tests_results' was succesfully created."
+                std::cout << "Table 'test_results' was succesfully created."
                           << std::endl;
             }
             else
             {
                 std::cerr << "Error while trying to create table "
-                             "'tests_results'."
+                             "'test_results'."
                           << std::endl;
             }
         }
@@ -630,7 +825,7 @@ void DatabaseManager::createTableDiagnosis()
         else
         {
             SQLCHAR createTableQuery[] =
-                "CREATE TABLE diagnosis (id INT "
+                "CREATE TABLE diagnosis (id SERIAL "
                 "PRIMARY KEY, id_visit INT REFERENCES visits(id), description "
                 "VARCHAR(255))";
             SQLRETURN createRet =

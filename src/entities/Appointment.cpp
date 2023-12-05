@@ -4,7 +4,7 @@
 
 int Appointment::getId() const { return id_; }
 int Appointment::getIdDoctor() const { return idDoctor_; }
-Weekday Appointment::getIdWeekday() const { return idWeekday_; }
+int Appointment::getIdWeekday() const { return idWeekday_; }
 DateTime Appointment::getBeginDate() const { return beginDate_; }
 DateTime Appointment::getEndDate() const { return endDate_; }
 int Appointment::getOffice() const { return office_; }
@@ -30,10 +30,7 @@ void Appointment::setIdDoctor(int idDoctor)
     idDoctor_ = idDoctor;
 }
 
-/* void Appointment::setIdWeekday(Weekday weekday)
-{
-    idWeekday_ = weekday;
-} */
+void Appointment::setIdWeekday(int idWeekday) { idWeekday_ = idWeekday; }
 
 void Appointment::setBeginDate(DateTime date) { beginDate_ = date; }
 

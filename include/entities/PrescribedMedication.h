@@ -1,13 +1,13 @@
 #pragma once
 
 #include "BaseObject.h"
-#include "Medication.h"
+#include <iostream>
 
 class PrescribedMedication : public BaseObject
 {
 public:
-    PrescribedMedication(int id, int idVisit, int idMedication)
-        : id_(id), idVisit_(idVisit), idMedication_(idMedication)
+    PrescribedMedication(int idVisit, int idMedication)
+        : id_(-1), idVisit_(idVisit), idMedication_(idMedication)
     {
     }
 

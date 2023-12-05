@@ -6,7 +6,7 @@
 class Test : public BaseObject
 {
 public:
-    Test(int id, std::string& name) : id_(id), name_(name) {}
+    Test(std::string& name) : id_(-1), name_(name) {}
 
     int getId() const { return id_; }
     std::string getName() const { return name_; }

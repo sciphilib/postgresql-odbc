@@ -1,28 +1,25 @@
 [
     {
-        "id": 1,
         "idDoctor": 1,
         "idWeekday": 1,
-        "beginDate": "2023-01-01 15:30",
-        "endDate" : "2023-01-07 16:00",
+        "beginDate": "15:30",
+        "endDate" : "16:00",
         "office": 101,
         "district": 25
     },
     {
-        "id": 2,
         "idDoctor": 2,
         "idWeekday": 2,
-        "beginDate": "2023-01-05 11:30",
-        "endDate" : "2023-01-15 17:40",
+        "beginDate": "11:30",
+        "endDate" : "17:40",
         "office": 151,
         "district": 26
     },
     {
-        "id": 3,
         "idDoctor": 4,
         "idWeekday": 3,
-        "beginDate": "2023-11-05 11:30",
-        "endDate" : "2023-11-15 17:40",
+        "beginDate": "11:30",
+        "endDate" : "17:40",
         "office": 777,
         "district": 26
     }

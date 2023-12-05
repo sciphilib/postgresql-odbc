@@ -5,9 +5,9 @@
 class Doctor : public BaseObject
 {
 public:
-    Doctor(int id, std::string& lastName, std::string& firstName,
+    Doctor(std::string& lastName, std::string& firstName,
            std::string& middleName, int idSpec)
-        : id_(id), lastName_(lastName), firstName_(firstName),
+        : id_(-1), lastName_(lastName), firstName_(firstName),
           middleName_(middleName), idSpec_(idSpec){};
 
     int getId() const { return id_; }

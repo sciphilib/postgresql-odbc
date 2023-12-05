@@ -6,7 +6,7 @@
 class Specialization : public BaseObject
 {
 public:
-    Specialization(int id, std::string& name) : id_(id), name_(name) {}
+    Specialization(std::string& name) : id_(-1), name_(name) {}
 
     int getId() const { return id_; }
     std::string getName() const { return name_; }
