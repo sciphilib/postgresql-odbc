@@ -10,6 +10,10 @@ public:
         : id_(-1), idVisit_(idVisit), idProcedure_(idProcedure), count_(count)
     {
     }
+    PrescribedProcedure(int id, int idVisit, int idProcedure, int count)
+        : id_(id), idVisit_(idVisit), idProcedure_(idProcedure), count_(count)
+    {
+    }
 
     int getId() const { return id_; }
     int getIdVisit() const { return idVisit_; }
@@ -22,10 +26,10 @@ public:
     void setCount(int count) { count_ = count; }
     void print() const override
     {
-        std::cout << "PrescribedProcedure: id_ = " << id_
-                  << ", idVisit_ = " << idVisit_
-                  << ", idProcedure_ = " << idProcedure_
-                  << ", count_ = " << count_ << std::endl;
+        std::cout << "PrescribedProcedure: id = " << id_
+                  << ", idVisit = " << idVisit_
+                  << ", idProcedure = " << idProcedure_
+                  << ", count = " << count_ << std::endl;
     }
 
 private:

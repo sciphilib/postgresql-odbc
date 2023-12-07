@@ -14,6 +14,7 @@ public:
     std::string to_utf8(const std::string& input);
 
     virtual void insert(const BaseObject& object) = 0;
+    virtual std::unique_ptr<BaseObject> findById(int id) = 0;
 
 protected:
     SQLHDBC hDbc_;

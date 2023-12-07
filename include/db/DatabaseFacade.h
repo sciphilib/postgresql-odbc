@@ -1,6 +1,21 @@
 #pragma once
 
+#include "Appointment.h"
+#include "Doctor.h"
+#include "Medication.h"
+#include "Patient.h"
+#include "PrescribedMedication.h"
+#include "PrescribedProcedure.h"
+#include "Procedure.h"
+#include "Specialization.h"
+#include "Visit.h"
+#include "Weekday.h"
+#include "TestResult.h"
+#include "Test.h"
+#include "Diagnosis.h"
+
 #include "AppointmentTDG.h"
+#include "DiagnosisTDG.h"
 #include "DoctorTDG.h"
 #include "MainFactory.h"
 #include "MedicationTDG.h"
@@ -9,17 +24,32 @@
 #include "PrescribedProcedureTDG.h"
 #include "ProcedureTDG.h"
 #include "SpecializationTDG.h"
+#include "TestResultTDG.h"
+#include "TestTDG.h"
 #include "VisitTDG.h"
 #include "WeekdayTDG.h"
-#include "TestTDG.h"
-#include "TestResultTDG.h"
-#include "DiagnosisTDG.h"
+#include <memory>
 
 class DatabaseFacade
 {
 public:
-    DatabaseFacade() : hDbc_(nullptr) {}
-    DatabaseFacade(SQLHDBC hDbc) : hDbc_(hDbc) {}
+    DatabaseFacade(AppointmentTDG* appointmentTDG, DoctorTDG* doctorTDG,
+                   MedicationTDG* medicationTDG, PatientTDG* patientTDG,
+                   PrescribedMedicationTDG* prescribedMedicationTDG,
+                   PrescribedProcedureTDG* prescribedProcedureTDG,
+                   ProcedureTDG* procedureTDG,
+                   SpecializationTDG* specializationTDG, VisitTDG* visitTDG,
+                   WeekdayTDG* weekdayTDG, TestTDG* testTDG,
+                   TestResultTDG* testResultTDG, DiagnosisTDG* diagnosisTDG)
+        : appointmentTDG(appointmentTDG), doctorTDG(doctorTDG),
+          medicationTDG(medicationTDG), patientTDG(patientTDG),
+          prescribedMedicationTDG(prescribedMedicationTDG),
+          prescribedProcedureTDG(prescribedProcedureTDG),
+          procedureTDG(procedureTDG), specializationTDG(specializationTDG),
+          visitTDG(visitTDG), weekdayTDG(weekdayTDG), testTDG(testTDG),
+          testResultTDG(testResultTDG), diagnosisTDG(diagnosisTDG)
+    {
+    }
     void addWeekday(const std::string& dayName);
 
     void addSpecialization(const std::string& name);
@@ -40,9 +70,33 @@ public:
     void addTestResult(int idVisit, int idTest, const std::string& result);
     void addDiagnosis(int idVisit, const std::string& description);
 
-    void setHdbc(SQLHDBC hdbc) { hDbc_ = hdbc; };
+    std::unique_ptr<Appointment> findAppointmentById(int id);
+    std::unique_ptr<Weekday> findWeekdayById(int id);
+    std::unique_ptr<Specialization> findSpecializationById(int id);
+    std::unique_ptr<Doctor> findDoctorById(int id);
+    std::unique_ptr<Patient> findPatientById(int id);
+    std::unique_ptr<Visit> findVisitById(int id);
+    std::unique_ptr<PrescribedMedication> findPrescribedMedicationById(int id);
+    std::unique_ptr<Medication> findMedicationById(int id);
+    std::unique_ptr<PrescribedProcedure> findPrescribedProcedureById(int id);
+    std::unique_ptr<Procedure> findProcedureById(int id);
+    std::unique_ptr<TestResult> findTestResultById(int id);
+    std::unique_ptr<Test> findTestById(int id);
+    std::unique_ptr<Diagnosis> findDiagnosisById(int id);
 
 private:
-    SQLHDBC hDbc_;
     MainFactory mainFactory;
+    AppointmentTDG* appointmentTDG;
+    DoctorTDG* doctorTDG;
+    MedicationTDG* medicationTDG;
+    PatientTDG* patientTDG;
+    PrescribedMedicationTDG* prescribedMedicationTDG;
+    PrescribedProcedureTDG* prescribedProcedureTDG;
+    ProcedureTDG* procedureTDG;
+    SpecializationTDG* specializationTDG;
+    VisitTDG* visitTDG;
+    WeekdayTDG* weekdayTDG;
+    TestTDG* testTDG;
+    TestResultTDG* testResultTDG;
+    DiagnosisTDG* diagnosisTDG;
 };

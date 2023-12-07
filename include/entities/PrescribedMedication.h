@@ -11,6 +11,11 @@ public:
     {
     }
 
+    PrescribedMedication(int id, int idVisit, int idMedication)
+        : id_(id), idVisit_(idVisit), idMedication_(idMedication)
+    {
+    }
+
     int getId() const { return id_; }
     int getIdVisit() const { return idVisit_; }
     int getIdMedication() const { return idMedication_; }
@@ -20,9 +25,9 @@ public:
     void setIdMedication(int idMedication) { idMedication_ = idMedication; }
     void print() const override
     {
-        std::cout << "PrescribedMedication id_ = " << id_
-                  << ", idVisit_ = " << idVisit_
-                  << ", idMedication_ = " << idMedication_ << std::endl;
+        std::cout << "PrescribedMedication id = " << id_
+                  << ", idVisit = " << idVisit_
+                  << ", idMedication = " << idMedication_ << std::endl;
     }
 
 private:

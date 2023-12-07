@@ -1,13 +1,97 @@
 #pragma once
 
 #include "Appointment.h"
+#include "DateTime.h"
 #include "TableDataGateway.h"
+#include <cstddef>
 #include <iostream>
+#include <memory>
+#include <sql.h>
+#include <sqltypes.h>
+#include <sstream>
+#include <string>
 
 class AppointmentTDG : public TableDataGateway
 {
 public:
     AppointmentTDG(SQLHDBC hDbc) : TableDataGateway(hDbc) {}
+
+    std::unique_ptr<BaseObject> findById(int id) override
+    {
+        SQLHSTMT hStmt;
+        SQLRETURN retcode;
+        int id_, idDoctor, idDayOfWeek, office, district;
+        DateTime beginDate(true), endDate(true);
+
+        retcode = SQLAllocHandle(SQL_HANDLE_STMT, hDbc_, &hStmt);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error allocating SQL Handle\n";
+            return nullptr;
+        }
+
+        retcode = SQLPrepare(
+            hStmt, (SQLCHAR*)"SELECT * FROM appointments WHERE id = ?",
+            SQL_NTS);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error preparing SQL query\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return nullptr;
+        }
+
+        retcode = SQLBindParameter(hStmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG,
+                                   SQL_INTEGER, 0, 0, &id, 0, NULL);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error binding parameters\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return nullptr;
+        }
+
+        retcode = SQLExecute(hStmt);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error executing SQL query\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return nullptr;
+        }
+
+        SQL_TIME_STRUCT beginTime, endTime;
+        SQLLEN indicator;
+        if (SQLFetch(hStmt) == SQL_SUCCESS)
+        {
+            SQLGetData(hStmt, 1, SQL_C_SLONG, &id_, 0, NULL);
+            SQLGetData(hStmt, 2, SQL_C_SLONG, &idDoctor, 0, NULL);
+            SQLGetData(hStmt, 3, SQL_C_SLONG, &idDayOfWeek, 0, NULL);
+            SQLGetData(hStmt, 4, SQL_C_TIME, &beginTime, sizeof(beginTime),
+                       &indicator);
+            if (indicator != SQL_NULL_DATA)
+            {
+                std::string time = std::to_string(beginTime.hour) + ":" +
+                                   std::to_string(beginTime.minute);
+                beginDate.setDateTime(time);
+            }
+            SQLGetData(hStmt, 5, SQL_C_TIME, &endTime, sizeof(endTime),
+                       &indicator);
+            if (indicator != SQL_NULL_DATA)
+            {
+                std::string time = std::to_string(endTime.hour) + ":" +
+                                   std::to_string(endTime.minute);
+                endDate.setDateTime(time);
+            }
+            SQLGetData(hStmt, 6, SQL_C_SLONG, &office, 0, NULL);
+            SQLGetData(hStmt, 7, SQL_C_SLONG, &district, 0, NULL);
+
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+
+            return std::make_unique<Appointment>(id_, idDoctor, idDayOfWeek,
+                                                 beginDate, endDate, office,
+                                                 district);
+        }
+
+        return nullptr;
+    }
 
     void insert(const BaseObject& object) override
     {

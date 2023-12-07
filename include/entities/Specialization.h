@@ -7,6 +7,7 @@ class Specialization : public BaseObject
 {
 public:
     Specialization(std::string& name) : id_(-1), name_(name) {}
+    Specialization(int id, std::string& name) : id_(id), name_(name) {}
 
     int getId() const { return id_; }
     std::string getName() const { return name_; }
@@ -15,7 +16,7 @@ public:
     void setName(std::string& name) { name_ = name; }
     void print() const override
     {
-        std::cout << "Specialization: id_ = " << id_ << ", name_ = " << name_
+        std::cout << "Specialization: id = " << id_ << ", name = " << name_
                   << std::endl;
     }
 
