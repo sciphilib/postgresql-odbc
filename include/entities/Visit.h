@@ -14,6 +14,14 @@ public:
     {
     }
 
+    Visit(int id, int idPatient, int idDoctor, std::string& complaints,
+          DateTime dateVisit, DateTime dateDischarge, DateTime dateClose)
+        : id_(id), idPatient_(idPatient), idDoctor_(idDoctor),
+          complaints_(complaints), dateVisit_(dateVisit),
+          dateDischarge_(dateDischarge), dateClose_(dateClose)
+    {
+    }
+
     int getId() const { return id_; }
     int getIdPatient() const { return idPatient_; }
     int getIdDoctor() const { return idDoctor_; }
@@ -34,12 +42,12 @@ public:
     void setComplaints(std::string& complaints) { complaints_ = complaints; }
     void print() const override
     {
-        std::cout << "Visit: id_ = " << id_ << ", idPatient_ = " << idPatient_
-                  << ", idDoctor_ = " << idDoctor_
-                  << ", dateVisit_ = " << dateVisit_.toString()
-                  << ", dateDischarge_ = " << dateDischarge_.toString()
-                  << ", dateClose_ = " << dateClose_.toString()
-                  << ", complaints_ = " << complaints_ << std::endl;
+        std::cout << "Visit: id = " << id_ << ", idPatient = " << idPatient_
+                  << ", idDoctor = " << idDoctor_
+                  << ", dateVisit = " << dateVisit_.toString()
+                  << ", dateDischarge = " << dateDischarge_.toString()
+                  << ", dateClose = " << dateClose_.toString()
+                  << ", complaints = " << complaints_ << std::endl;
     }
 
 private:

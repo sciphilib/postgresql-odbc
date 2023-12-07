@@ -10,6 +10,10 @@ public:
         : id_(-1), idVisit_(idVisit), idTest_(idTest), result_(result)
     {
     }
+    TestResult(int id, int idVisit, int idTest, std::string& result)
+        : id_(id), idVisit_(idVisit), idTest_(idTest), result_(result)
+    {
+    }
 
     int getId() const { return id_; }
     int getIdVisit() const { return idVisit_; }
@@ -22,8 +26,8 @@ public:
     void setResult(std::string& result) { result_ = result; }
     void print() const override
     {
-        std::cout << "TestResult: id_ = " << id_ << ", idVisit_ = " << idVisit_
-                  << ", idTest_ = " << idTest_ << ", result_ = " << result_
+        std::cout << "TestResult: id = " << id_ << ", idVisit = " << idVisit_
+                  << ", idTest = " << idTest_ << ", result = " << result_
                   << std::endl;
     }
 

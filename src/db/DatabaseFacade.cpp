@@ -1,5 +1,5 @@
 #include "DatabaseFacade.h"
-#include <bits/types/struct_sched_param.h>
+#include <memory>
 #include <string>
 
 void DatabaseFacade::addWeekday(const std::string& dayName)
@@ -8,10 +8,7 @@ void DatabaseFacade::addWeekday(const std::string& dayName)
 
     auto weekday = mainFactory.createObject("Weekday", parameters);
 
-    WeekdayTDG weekdayTDG(hDbc_);
-    weekdayTDG.insert(*weekday);
-
-    // to do: use get method to get and assign id of object
+    weekdayTDG->insert(*weekday);
 }
 
 void DatabaseFacade::addSpecialization(const std::string& name)
@@ -20,8 +17,7 @@ void DatabaseFacade::addSpecialization(const std::string& name)
 
     auto spec = mainFactory.createObject("Specialization", parameters);
 
-    SpecializationTDG specializationTDG(hDbc_);
-    specializationTDG.insert(*spec);
+    specializationTDG->insert(*spec);
 }
 
 void DatabaseFacade::addDoctor(const std::string& lastName,
@@ -36,8 +32,7 @@ void DatabaseFacade::addDoctor(const std::string& lastName,
 
     auto doctor = mainFactory.createObject("Doctor", parameters);
 
-    DoctorTDG doctorTDG(hDbc_);
-    doctorTDG.insert(*doctor);
+    doctorTDG->insert(*doctor);
 }
 
 void DatabaseFacade::addAppointment(int idDoctor, int idWeekday,
@@ -55,8 +50,7 @@ void DatabaseFacade::addAppointment(int idDoctor, int idWeekday,
 
     auto appointment = mainFactory.createObject("Appointment", parameters);
 
-    AppointmentTDG appointmentTDG(hDbc_);
-    appointmentTDG.insert(*appointment);
+    appointmentTDG->insert(*appointment);
 }
 
 void DatabaseFacade::addPatient(const std::string& lastName,
@@ -70,8 +64,7 @@ void DatabaseFacade::addPatient(const std::string& lastName,
                                                   {"address", address}};
     auto patient = mainFactory.createObject("Patient", parameters);
 
-    PatientTDG patientTDG(hDbc_);
-    patientTDG.insert(*patient);
+    patientTDG->insert(*patient);
 }
 
 void DatabaseFacade::addMedication(const std::string& name)
@@ -80,8 +73,7 @@ void DatabaseFacade::addMedication(const std::string& name)
 
     auto medication = mainFactory.createObject("Medication", parameters);
 
-    MedicationTDG medicationTDG(hDbc_);
-    medicationTDG.insert(*medication);
+    medicationTDG->insert(*medication);
 }
 
 void DatabaseFacade::addVisit(int idPatient, int idDoctor,
@@ -100,8 +92,7 @@ void DatabaseFacade::addVisit(int idPatient, int idDoctor,
 
     auto visit = mainFactory.createObject("Visit", parameters);
 
-    VisitTDG visitTDG(hDbc_);
-    visitTDG.insert(*visit);
+    visitTDG->insert(*visit);
 }
 
 void DatabaseFacade::addPrescribedMedication(int idVisit, int idMedication)
@@ -113,8 +104,7 @@ void DatabaseFacade::addPrescribedMedication(int idVisit, int idMedication)
     auto prMedication =
         mainFactory.createObject("PrescribedMedication", parameters);
 
-    PrescribedMedicationTDG prmedTDG(hDbc_);
-    prmedTDG.insert(*prMedication);
+    prescribedMedicationTDG->insert(*prMedication);
 }
 
 void DatabaseFacade::addProcedure(const std::string& name)
@@ -123,8 +113,7 @@ void DatabaseFacade::addProcedure(const std::string& name)
 
     auto procedure = mainFactory.createObject("Procedure", parameters);
 
-    ProcedureTDG procedureTDG(hDbc_);
-    procedureTDG.insert(*procedure);
+    procedureTDG->insert(*procedure);
 }
 
 void DatabaseFacade::addPrescribedProcedure(int idVisit, int idProcedure,
@@ -138,8 +127,7 @@ void DatabaseFacade::addPrescribedProcedure(int idVisit, int idProcedure,
     auto prescribedProcedure =
         mainFactory.createObject("PrescribedProcedure", parameters);
 
-    PrescribedProcedureTDG prprocTDG(hDbc_);
-    prprocTDG.insert(*prescribedProcedure);
+    prescribedProcedureTDG->insert(*prescribedProcedure);
 }
 
 void DatabaseFacade::addTest(const std::string& name)
@@ -148,8 +136,7 @@ void DatabaseFacade::addTest(const std::string& name)
 
     auto test = mainFactory.createObject("Test", parameters);
 
-    TestTDG testTDG(hDbc_);
-    testTDG.insert(*test);
+    testTDG->insert(*test);
 }
 
 void DatabaseFacade::addTestResult(int idVisit, int idTest,
@@ -162,17 +149,152 @@ void DatabaseFacade::addTestResult(int idVisit, int idTest,
 
     auto testResult = mainFactory.createObject("TestResult", parameters);
 
-    TestResultTDG testResultTDG(hDbc_);
-    testResultTDG.insert(*testResult);
+    testResultTDG->insert(*testResult);
 }
 
 void DatabaseFacade::addDiagnosis(int idVisit, const std::string& description)
 {
     std::map<std::string, std::string> parameters{
         {"id_visit", std::to_string(idVisit)}, {"description", description}};
-    
+
     auto diagnosis = mainFactory.createObject("Diagnosis", parameters);
 
-    DiagnosisTDG diagnosisTDG(hDbc_);
-    diagnosisTDG.insert(*diagnosis);
+    diagnosisTDG->insert(*diagnosis);
+}
+
+std::unique_ptr<Appointment> DatabaseFacade::findAppointmentById(int id)
+{
+    std::unique_ptr<BaseObject> baseObject = appointmentTDG->findById(id);
+    if (baseObject)
+        return std::unique_ptr<Appointment>(
+            static_cast<Appointment*>(baseObject.release()));
+    else
+        return nullptr;
+}
+
+std::unique_ptr<Weekday> DatabaseFacade::findWeekdayById(int id)
+{
+    std::unique_ptr<BaseObject> baseObject = weekdayTDG->findById(id);
+    if (baseObject)
+        return std::unique_ptr<Weekday>(
+            static_cast<Weekday*>(baseObject.release()));
+    else
+        return nullptr;
+}
+
+std::unique_ptr<Specialization> DatabaseFacade::findSpecializationById(int id)
+{
+    std::unique_ptr<BaseObject> baseObject = specializationTDG->findById(id);
+    if (baseObject)
+        return std::unique_ptr<Specialization>(
+            static_cast<Specialization*>(baseObject.release()));
+    else
+        return nullptr;
+}
+
+std::unique_ptr<Doctor> DatabaseFacade::findDoctorById(int id)
+{
+    std::unique_ptr<BaseObject> baseObject = doctorTDG->findById(id);
+    if (baseObject)
+        return std::unique_ptr<Doctor>(
+            static_cast<Doctor*>(baseObject.release()));
+    else
+        return nullptr;
+}
+
+std::unique_ptr<Patient> DatabaseFacade::findPatientById(int id)
+{
+    std::unique_ptr<BaseObject> baseObject = patientTDG->findById(id);
+    if (baseObject)
+        return std::unique_ptr<Patient>(
+            static_cast<Patient*>(baseObject.release()));
+    else
+        return nullptr;
+}
+
+std::unique_ptr<Visit> DatabaseFacade::findVisitById(int id)
+{
+    std::unique_ptr<BaseObject> baseObject = visitTDG->findById(id);
+    if (baseObject)
+        return std::unique_ptr<Visit>(
+            static_cast<Visit*>(baseObject.release()));
+    else
+        return nullptr;
+}
+
+std::unique_ptr<PrescribedMedication>
+DatabaseFacade::findPrescribedMedicationById(int id)
+{
+    std::unique_ptr<BaseObject> baseObject =
+        prescribedMedicationTDG->findById(id);
+    if (baseObject)
+        return std::unique_ptr<PrescribedMedication>(
+            static_cast<PrescribedMedication*>(baseObject.release()));
+    else
+        return nullptr;
+}
+
+std::unique_ptr<Medication> DatabaseFacade::findMedicationById(int id)
+{
+    std::unique_ptr<BaseObject> baseObject = medicationTDG->findById(id);
+    if (baseObject)
+        return std::unique_ptr<Medication>(
+            static_cast<Medication*>(baseObject.release()));
+    else
+        return nullptr;
+}
+
+std::unique_ptr<PrescribedProcedure> DatabaseFacade::findPrescribedProcedureById(int id)
+{
+    std::unique_ptr<BaseObject> baseObject =
+        prescribedProcedureTDG->findById(id);
+    if (baseObject)
+        return std::unique_ptr<PrescribedProcedure>(
+            static_cast<PrescribedProcedure*>(baseObject.release()));
+    else
+        return nullptr;   
+}
+
+std::unique_ptr<Procedure> DatabaseFacade::findProcedureById(int id)
+{
+    std::unique_ptr<BaseObject> baseObject =
+        procedureTDG->findById(id);
+    if (baseObject)
+        return std::unique_ptr<Procedure>(
+            static_cast<Procedure*>(baseObject.release()));
+    else
+        return nullptr;   
+}
+
+std::unique_ptr<TestResult> DatabaseFacade::findTestResultById(int id)
+{
+    std::unique_ptr<BaseObject> baseObject =
+        testResultTDG->findById(id);
+    if (baseObject)
+        return std::unique_ptr<TestResult>(
+            static_cast<TestResult*>(baseObject.release()));
+    else
+        return nullptr;   
+}
+
+std::unique_ptr<Test> DatabaseFacade::findTestById(int id)
+{
+    std::unique_ptr<BaseObject> baseObject =
+        testTDG->findById(id);
+    if (baseObject)
+        return std::unique_ptr<Test>(
+            static_cast<Test*>(baseObject.release()));
+    else
+        return nullptr;   
+}
+
+std::unique_ptr<Diagnosis> DatabaseFacade::findDiagnosisById(int id)
+{
+    std::unique_ptr<BaseObject> baseObject =
+        diagnosisTDG->findById(id);
+    if (baseObject)
+        return std::unique_ptr<Diagnosis>(
+            static_cast<Diagnosis*>(baseObject.release()));
+    else
+        return nullptr;   
 }

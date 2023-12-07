@@ -13,6 +13,13 @@ public:
     {
     }
 
+    Patient(int id, std::string& lastName, std::string& firstName,
+            std::string& middleName, std::string& address)
+        : id_(id), lastName_(lastName), firstName_(firstName),
+          middleName_(middleName), address_(address)
+    {
+    }
+
     int getId() const { return id_; }
     std::string getLastName() const { return lastName_; }
     std::string getFirstName() const { return firstName_; }
@@ -26,10 +33,10 @@ public:
     void setAddress(std::string& address) { address_ = address; }
     void print() const override
     {
-        std::cout << "Patient: id_ = " << id_ << ", lastName_ = " << lastName_
-                  << ", firstName_ = " << firstName_
-                  << ", middleName_ = " << middleName_
-                  << ", address_ = " << address_ << std::endl;
+        std::cout << "Patient: id = " << id_ << ", lastName = " << lastName_
+                  << ", firstName = " << firstName_
+                  << ", middleName = " << middleName_
+                  << ", address = " << address_ << std::endl;
     }
 
 private:

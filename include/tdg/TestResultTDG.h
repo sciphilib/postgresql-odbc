@@ -3,11 +3,70 @@
 #include "TableDataGateway.h"
 #include "TestResult.h"
 #include <iostream>
+#include <memory>
 
 class TestResultTDG : public TableDataGateway
 {
 public:
     TestResultTDG(SQLHDBC hDbc) : TableDataGateway(hDbc) {}
+
+    std::unique_ptr<BaseObject> findById(int id) override
+    {
+        SQLHSTMT hStmt;
+        SQLRETURN retcode;
+        int id_, idVisit, idTest;
+        std::string result;
+
+        retcode = SQLAllocHandle(SQL_HANDLE_STMT, hDbc_, &hStmt);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error allocating SQL Handle\n";
+            return nullptr;
+        }
+
+        retcode = SQLPrepare(
+            hStmt, (SQLCHAR*)"SELECT * FROM test_results WHERE id = ?", SQL_NTS);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error preparing SQL query\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return nullptr;
+        }
+
+        retcode = SQLBindParameter(hStmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG,
+                                   SQL_INTEGER, 0, 0, &id, 0, NULL);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error binding parameters\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return nullptr;
+        }
+
+        retcode = SQLExecute(hStmt);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error executing SQL query\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return nullptr;
+        }
+
+        SQLCHAR resultData[256];
+        if (SQLFetch(hStmt) == SQL_SUCCESS)
+        {
+            SQLGetData(hStmt, 1, SQL_C_SLONG, &id_, 0, NULL);
+            SQLGetData(hStmt, 2, SQL_C_SLONG, &idVisit, 0, NULL);
+            SQLGetData(hStmt, 3, SQL_C_SLONG, &idTest, 0, NULL);
+            SQLGetData(hStmt, 4, SQL_C_CHAR, resultData, sizeof(resultData),
+                       NULL);
+            result = std::string(reinterpret_cast<char*>(resultData));
+            
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+
+            return std::make_unique<TestResult>(id_, idVisit, idTest, result);
+        }
+
+        return nullptr;
+    }
 
     void insert(const BaseObject& object) override
     {
@@ -46,7 +105,8 @@ public:
 
         std::string resultUtf8 = to_utf8(testResult.getResult());
         if (SQLBindParameter(hStmt, 3, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR,
-                             resultUtf8.length(), 0, (SQLCHAR*)resultUtf8.c_str(), 0,
+                             resultUtf8.length(), 0,
+                             (SQLCHAR*)resultUtf8.c_str(), 0,
                              nullptr) != SQL_SUCCESS)
         {
             std::cerr << "Error: failed to bind parameters." << std::endl;

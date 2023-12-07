@@ -10,6 +10,10 @@ public:
         : id_(-1), idVisit_(idVisit), description_(description)
     {
     }
+    Diagnosis(int id, int idVisit, std::string& description)
+        : id_(id), idVisit_(idVisit), description_(description)
+    {
+    }
 
     int getId() const { return id_; }
     int getIdVisit() const { return idVisit_; }
@@ -23,8 +27,8 @@ public:
     }
     void print() const override
     {
-        std::cout << "Diagnosis: id_ = " << id_ << ", idVisit_ = " << idVisit_
-                  << ", description_ = " << description_ << std::endl;
+        std::cout << "Diagnosis: id = " << id_ << ", idVisit = " << idVisit_
+                  << ", description = " << description_ << std::endl;
     }
 
 private:

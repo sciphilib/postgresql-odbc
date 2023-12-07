@@ -23,8 +23,16 @@ public:
     void setOffice(int office);
     void setDistrict(int district);
 
-    Appointment(int idDoctor, int idWeekday, DateTime beginDate,
-                DateTime endDate, int office, int district)
+    Appointment(int id, int idDoctor, int idWeekday, const DateTime& beginDate,
+                const DateTime& endDate, int office, int district)
+        : id_(id), idDoctor_(idDoctor), idWeekday_(idWeekday),
+          beginDate_(beginDate), endDate_(endDate), office_(office),
+          district_(district)
+    {
+    }
+
+    Appointment(int idDoctor, int idWeekday, const DateTime& beginDate,
+                const DateTime& endDate, int office, int district)
         : id_(-1), idDoctor_(idDoctor), idWeekday_(idWeekday),
           beginDate_(beginDate), endDate_(endDate), office_(office),
           district_(district)
@@ -33,12 +41,12 @@ public:
 
     void print() const override
     {
-        std::cout << "Appointment: id_ = " << id_
-                  << ", idDoctor_ = " << idDoctor_
-                  << ", idWeekday_ = " << idWeekday_
-                  << ", beginDate_ = " << beginDate_.toString()
-                  << ", endDate_ = " << endDate_.toString()
-                  << ", office_ = " << office_ << ", district_ = " << district_
+        std::cout << "Appointment: id = " << id_
+                  << ", idDoctor = " << idDoctor_
+                  << ", idWeekday = " << idWeekday_
+                  << ", beginDate = " << beginDate_.toString()
+                  << ", endDate_= " << endDate_.toString()
+                  << ", office = " << office_ << ", district = " << district_
                   << std::endl;
     }
 
