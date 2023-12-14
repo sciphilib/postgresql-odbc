@@ -10,6 +10,8 @@ class WeekdayTDG : public TableDataGateway
 public:
     WeekdayTDG(SQLHDBC hDbc) : TableDataGateway(hDbc) {}
 
+    bool update(int id, const BaseObject& object) override {}
+
     std::unique_ptr<BaseObject> findById(int id) override
     {
         SQLHSTMT hStmt;

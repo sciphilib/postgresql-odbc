@@ -10,6 +10,83 @@ class DoctorTDG : public TableDataGateway
 public:
     DoctorTDG(SQLHDBC hDbc) : TableDataGateway(hDbc) {}
 
+    bool update(int id, const BaseObject& object) override
+    {
+        SQLHSTMT hStmt;
+        SQLRETURN retcode;
+
+        const Doctor* ptr = nullptr;
+        try
+        {
+            ptr = &dynamic_cast<const Doctor&>(object);
+        }
+        catch (const std::bad_cast& e)
+        {
+            std::cerr << "Dynamic cast failed\n";
+            return false;
+        }
+        if (!ptr)
+        {
+            return false;
+        }
+
+        const Doctor& doctor = *ptr;
+        std::string lastName = doctor.getLastName();
+        std::string firstName = doctor.getFirstName();
+        std::string middleName = doctor.getMiddleName();
+        int idSpec = doctor.getIdSpec();
+
+        retcode = SQLAllocHandle(SQL_HANDLE_STMT, hDbc_, &hStmt);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error allocating SQL Handle\n";
+            return false;
+        }
+
+        retcode = SQLPrepare(hStmt,
+                             (SQLCHAR*)"UPDATE doctors SET last_name = ?, "
+                                       "first_name = ?, middle_name = ?, "
+                                       "id_spec = ? WHERE id = ?",
+                             SQL_NTS);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error preparing SQL query\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return false;
+        }
+
+        retcode = SQLBindParameter(hStmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR,
+                                    SQL_VARCHAR, lastName.length(), 0,
+                                    (SQLCHAR*)lastName.c_str(), 0, NULL);
+        retcode += SQLBindParameter(hStmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR,
+                                    SQL_VARCHAR, firstName.length(), 0,
+                                    (SQLCHAR*)firstName.c_str(), 0, NULL);
+        retcode += SQLBindParameter(hStmt, 3, SQL_PARAM_INPUT, SQL_C_CHAR,
+                                    SQL_VARCHAR, middleName.length(), 0,
+                                    (SQLCHAR*)middleName.c_str(), 0, NULL);
+        retcode += SQLBindParameter(hStmt, 4, SQL_PARAM_INPUT, SQL_C_SLONG,
+                                   SQL_INTEGER, 0, 0, &idSpec, 0, NULL);
+        retcode += SQLBindParameter(hStmt, 5, SQL_PARAM_INPUT, SQL_C_SLONG,
+                                   SQL_INTEGER, 0, 0, &id, 0, NULL);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error binding parameters\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return false;
+        }
+
+        retcode = SQLExecute(hStmt);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error executing SQL query\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return false;
+        }
+
+        SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+        return true;
+    }
+
     std::unique_ptr<BaseObject> findById(int id) override
     {
         SQLHSTMT hStmt;
@@ -68,8 +145,8 @@ public:
 
             SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 
-            return std::make_unique<Doctor>(id_, lastName, firstName, middleName,
-                                        idSpec);
+            return std::make_unique<Doctor>(id_, lastName, firstName,
+                                            middleName, idSpec);
         }
 
         return nullptr;

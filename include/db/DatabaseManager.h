@@ -85,4 +85,19 @@ private:
     void insertTests();
     void insertTestResults();
     void insertDiagnosis();
+
+    void updateAll();
+    void updateAppointment();
+    void updateDiagnosis();
+    void updateDoctor();
+    void updateMedication();
+    void updatePatient();
+    void updatePrescribedMedication();
+    void updatePrescribedProcedure();
+    void updateProcedure();
+    void updateSpecialization();
+    void updateTestResult();
+    void updateTest();
+    void updateVisit();
+    void updateWeekday();
 };
