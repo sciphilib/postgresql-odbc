@@ -244,7 +244,8 @@ std::unique_ptr<Medication> DatabaseFacade::findMedicationById(int id)
         return nullptr;
 }
 
-std::unique_ptr<PrescribedProcedure> DatabaseFacade::findPrescribedProcedureById(int id)
+std::unique_ptr<PrescribedProcedure>
+DatabaseFacade::findPrescribedProcedureById(int id)
 {
     std::unique_ptr<BaseObject> baseObject =
         prescribedProcedureTDG->findById(id);
@@ -252,49 +253,89 @@ std::unique_ptr<PrescribedProcedure> DatabaseFacade::findPrescribedProcedureById
         return std::unique_ptr<PrescribedProcedure>(
             static_cast<PrescribedProcedure*>(baseObject.release()));
     else
-        return nullptr;   
+        return nullptr;
 }
 
 std::unique_ptr<Procedure> DatabaseFacade::findProcedureById(int id)
 {
-    std::unique_ptr<BaseObject> baseObject =
-        procedureTDG->findById(id);
+    std::unique_ptr<BaseObject> baseObject = procedureTDG->findById(id);
     if (baseObject)
         return std::unique_ptr<Procedure>(
             static_cast<Procedure*>(baseObject.release()));
     else
-        return nullptr;   
+        return nullptr;
 }
 
 std::unique_ptr<TestResult> DatabaseFacade::findTestResultById(int id)
 {
-    std::unique_ptr<BaseObject> baseObject =
-        testResultTDG->findById(id);
+    std::unique_ptr<BaseObject> baseObject = testResultTDG->findById(id);
     if (baseObject)
         return std::unique_ptr<TestResult>(
             static_cast<TestResult*>(baseObject.release()));
     else
-        return nullptr;   
+        return nullptr;
 }
 
 std::unique_ptr<Test> DatabaseFacade::findTestById(int id)
 {
-    std::unique_ptr<BaseObject> baseObject =
-        testTDG->findById(id);
+    std::unique_ptr<BaseObject> baseObject = testTDG->findById(id);
     if (baseObject)
-        return std::unique_ptr<Test>(
-            static_cast<Test*>(baseObject.release()));
+        return std::unique_ptr<Test>(static_cast<Test*>(baseObject.release()));
     else
-        return nullptr;   
+        return nullptr;
 }
 
 std::unique_ptr<Diagnosis> DatabaseFacade::findDiagnosisById(int id)
 {
-    std::unique_ptr<BaseObject> baseObject =
-        diagnosisTDG->findById(id);
+    std::unique_ptr<BaseObject> baseObject = diagnosisTDG->findById(id);
     if (baseObject)
         return std::unique_ptr<Diagnosis>(
             static_cast<Diagnosis*>(baseObject.release()));
     else
-        return nullptr;   
+        return nullptr;
+}
+
+bool DatabaseFacade::updateAppointment(int id, const Appointment& appointment)
+{
+    std::unique_ptr<BaseObject> baseObject = appointmentTDG->findById(id);
+    if (baseObject)
+        return appointmentTDG->update(id, appointment);
+    else
+        return false;
+}
+
+bool DatabaseFacade::updateDiagnosis(int id, const Diagnosis& diagnosis)
+{
+    std::unique_ptr<BaseObject> baseObject = diagnosisTDG->findById(id);
+    if (baseObject)
+        return diagnosisTDG->update(id, diagnosis);
+    else
+        return false;
+}
+
+bool DatabaseFacade::updateDoctor(int id, const Doctor& doctor)
+{
+    std::unique_ptr<BaseObject> baseObject = doctorTDG->findById(id);
+    if (baseObject)
+        return doctorTDG->update(id, doctor);
+    else
+        return false;
+}
+
+bool DatabaseFacade::updateMedication(int id, const Medication& medication)
+{
+    std::unique_ptr<BaseObject> baseObject = medicationTDG->findById(id);
+    if (baseObject)
+        return medicationTDG->update(id, medication);
+    else
+        return false;
+}
+
+bool DatabaseFacade::updatePatient(int id, const Patient& patient)
+{
+    std::unique_ptr<BaseObject> baseObject = patientTDG->findById(id);
+    if (baseObject)
+        return patientTDG->update(id, patient);
+    else
+        return false;
 }

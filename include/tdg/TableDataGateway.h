@@ -15,6 +15,7 @@ public:
 
     virtual void insert(const BaseObject& object) = 0;
     virtual std::unique_ptr<BaseObject> findById(int id) = 0;
+    virtual bool update(int id, const BaseObject& object) = 0;
 
 protected:
     SQLHDBC hDbc_;

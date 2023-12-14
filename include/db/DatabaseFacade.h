@@ -84,6 +84,20 @@ public:
     std::unique_ptr<Test> findTestById(int id);
     std::unique_ptr<Diagnosis> findDiagnosisById(int id);
 
+    bool updateAppointment(int id, const Appointment& appointment);
+    bool updateDiagnosis(int id, const Diagnosis& diagnosis);
+    bool updateDoctor(int id, const Doctor& doctor);
+    bool updateMedication(int id, const Medication& medication);
+    bool updatePatient(int id, const Patient& patient);
+    bool updatePrescribedMedication(int id, const PrescribedMedication& preMed);
+    bool updatePrescribedProcedure(int id, const PrescribedProcedure& preProc);
+    bool updateProcedure(int id, const Procedure& procedure);
+    bool updateSpecialization(int id, const Specialization& specialization);
+    bool updateTestResult(int id, const TestResult& testResult);
+    bool updateTest(int id, const Test& test);
+    bool updateVisit(int id, const Visit& visit);
+    bool updateWeekday(int id, const Weekday& weekday);
+
 private:
     MainFactory mainFactory;
     AppointmentTDG* appointmentTDG;
