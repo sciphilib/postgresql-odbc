@@ -11,6 +11,8 @@ class DiagnosisTDG : public TableDataGateway
 public:
     DiagnosisTDG(SQLHDBC hDbc) : TableDataGateway(hDbc) {}
 
+    bool deleteById(int id) override {}
+
     bool update(int id, const BaseObject& object) override
     {
         SQLHSTMT hStmt;

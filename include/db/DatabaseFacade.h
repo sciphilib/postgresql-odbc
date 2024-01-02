@@ -98,6 +98,9 @@ public:
     bool updateVisit(int id, const Visit& visit);
     bool updateWeekday(int id, const Weekday& weekday);
 
+    bool deleteDoctor(int id);
+    bool deletePatient(int id);
+
 private:
     MainFactory mainFactory;
     AppointmentTDG* appointmentTDG;

@@ -13,6 +13,8 @@ public:
 
     bool update(int id, const BaseObject& object) override {}
 
+    bool deleteById(int id) override {}
+
     std::unique_ptr<BaseObject> findById(int id) override
     {
         SQLHSTMT hStmt;

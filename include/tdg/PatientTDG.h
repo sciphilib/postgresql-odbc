@@ -10,6 +10,8 @@ class PatientTDG : public TableDataGateway
 public:
     PatientTDG(SQLHDBC hDbc) : TableDataGateway(hDbc) {}
 
+    bool deleteById(int id) override {}
+
     bool update(int id, const BaseObject& object) override
     {
         SQLHSTMT hStmt;
