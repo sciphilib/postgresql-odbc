@@ -339,3 +339,13 @@ bool DatabaseFacade::updatePatient(int id, const Patient& patient)
     else
         return false;
 }
+
+bool DatabaseFacade::deleteDoctor(int id)
+{
+    return doctorTDG->deleteById(id);
+}
+
+bool DatabaseFacade::deletePatient(int id)
+{
+    return true;
+}

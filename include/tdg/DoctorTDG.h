@@ -10,6 +10,49 @@ class DoctorTDG : public TableDataGateway
 public:
     DoctorTDG(SQLHDBC hDbc) : TableDataGateway(hDbc) {}
 
+    bool deleteById(int id) override
+    {
+        SQLHSTMT hStmt;
+        SQLRETURN retcode;
+
+        retcode = SQLAllocHandle(SQL_HANDLE_STMT, hDbc_, &hStmt);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error allocating SQL Handle\n";
+            return false;
+        }
+
+        retcode = SQLPrepare(
+            hStmt, (SQLCHAR*)"DELETE FROM doctors WHERE id = ?", SQL_NTS);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error preparing SQL query\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return false;
+        }
+
+        retcode = SQLBindParameter(hStmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG,
+                                   SQL_INTEGER, 0, 0, &id, 0, NULL);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error binding parameters\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return false;
+        }
+
+        retcode = SQLExecute(hStmt);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error executing SQL query\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return false;
+        }
+
+        SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+
+        return true;
+    }
+
     bool update(int id, const BaseObject& object) override
     {
         SQLHSTMT hStmt;
@@ -56,8 +99,8 @@ public:
         }
 
         retcode = SQLBindParameter(hStmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR,
-                                    SQL_VARCHAR, lastName.length(), 0,
-                                    (SQLCHAR*)lastName.c_str(), 0, NULL);
+                                   SQL_VARCHAR, lastName.length(), 0,
+                                   (SQLCHAR*)lastName.c_str(), 0, NULL);
         retcode += SQLBindParameter(hStmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR,
                                     SQL_VARCHAR, firstName.length(), 0,
                                     (SQLCHAR*)firstName.c_str(), 0, NULL);
@@ -65,9 +108,9 @@ public:
                                     SQL_VARCHAR, middleName.length(), 0,
                                     (SQLCHAR*)middleName.c_str(), 0, NULL);
         retcode += SQLBindParameter(hStmt, 4, SQL_PARAM_INPUT, SQL_C_SLONG,
-                                   SQL_INTEGER, 0, 0, &idSpec, 0, NULL);
+                                    SQL_INTEGER, 0, 0, &idSpec, 0, NULL);
         retcode += SQLBindParameter(hStmt, 5, SQL_PARAM_INPUT, SQL_C_SLONG,
-                                   SQL_INTEGER, 0, 0, &id, 0, NULL);
+                                    SQL_INTEGER, 0, 0, &id, 0, NULL);
         if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
         {
             std::cerr << "Error binding parameters\n";

@@ -86,6 +86,7 @@ void DatabaseManager::initDatabase()
     insertAll();
     findSomeObjects();
     updateAll();
+    deleteAll();
     /* Parser parser;
     parser.parseAppointment("data/appointments.json");
     parser.printAppointments(); */
@@ -188,7 +189,8 @@ void DatabaseManager::updateAll()
     updatePatient();
 }
 
-void DatabaseManager::updateAppointment() {
+void DatabaseManager::updateAppointment()
+{
     std::cout << "Before update:\n";
     std::unique_ptr<Appointment> appointment;
     appointment = databaseFacade->findAppointmentById(1);
@@ -202,7 +204,8 @@ void DatabaseManager::updateAppointment() {
     appointment->print();
 }
 
-void DatabaseManager::updateDiagnosis() {
+void DatabaseManager::updateDiagnosis()
+{
     std::cout << "Before update:\n";
     std::unique_ptr<Diagnosis> diagnosis;
     diagnosis = databaseFacade->findDiagnosisById(1);
@@ -216,7 +219,8 @@ void DatabaseManager::updateDiagnosis() {
     diagnosis->print();
 }
 
-void DatabaseManager::updateDoctor() {
+void DatabaseManager::updateDoctor()
+{
     std::cout << "Before update:\n";
     std::unique_ptr<Doctor> doctor;
     doctor = databaseFacade->findDoctorById(2);
@@ -246,7 +250,8 @@ void DatabaseManager::updateMedication()
     medication->print();
 }
 
-void DatabaseManager::updatePatient() {
+void DatabaseManager::updatePatient()
+{
     std::cout << "Before update:\n";
     std::unique_ptr<Patient> patient;
     patient = databaseFacade->findPatientById(4);
@@ -262,6 +267,21 @@ void DatabaseManager::updatePatient() {
     databaseFacade->updatePatient(4, *patient);
     std::cout << "After update:\n";
     patient->print();
+}
+
+void DatabaseManager::deleteAll() { deleteDoctor(); }
+
+void DatabaseManager::deleteDoctor()
+{
+    int id = 1;
+    if (databaseFacade->deleteDoctor(id))
+    {
+        std::cout << "Doctor with id  = " << id << " was deleted\n";
+    }
+    else
+    {
+        std::cout << "Doctor with id  = " << id << " was NOT deleted\n";
+    }
 }
 
 void DatabaseManager::insertAll()
@@ -577,8 +597,7 @@ void DatabaseManager::createTableDoctors()
                 "CREATE TABLE doctors (id SERIAL "
                 "PRIMARY KEY, last_name VARCHAR(255), first_name "
                 "VARCHAR(255), "
-                "middle_name VARCHAR(255), id_spec INT REFERENCES "
-                "Specializations(id))";
+                "middle_name VARCHAR(255), id_spec INT REFERENCES Specializations(id) ON DELETE CASCADE)";
             SQLRETURN createRet =
                 SQLExecDirect(hStmt, createTableQuery, SQL_NTS);
 
@@ -620,9 +639,11 @@ void DatabaseManager::createTableAppointments()
         {
             SQLCHAR createTableQuery[] =
                 "CREATE TABLE appointments (id SERIAL "
-                "PRIMARY KEY, id_doctor INT REFERENCES Doctors(id), "
+                "PRIMARY KEY, id_doctor INT REFERENCES Doctors(id) ON DELETE "
+                "CASCADE, "
                 "id_weekday "
-                "INT REFERENCES weekdays(id), begin_date TIME, end_date "
+                "INT REFERENCES weekdays(id) ON DELETE CASCADE, begin_date "
+                "TIME, end_date "
                 "TIME, "
                 "office INT, district INT)";
             SQLRETURN createRet =
@@ -711,8 +732,10 @@ void DatabaseManager::createTableVisits()
         {
             SQLCHAR createTableQuery[] =
                 "CREATE TABLE visits (id SERIAL "
-                "PRIMARY KEY, id_patient INT REFERENCES patients(id), "
-                "id_doctor INT REFERENCES doctors(id), complaints VARCHAR(255),"
+                "PRIMARY KEY, id_patient INT REFERENCES patients(id) ON DELETE "
+                "CASCADE, "
+                "id_doctor INT REFERENCES doctors(id) ON DELETE CASCADE, "
+                "complaints VARCHAR(255),"
                 "date_visit TIMESTAMP WITHOUT TIME ZONE, date_discharge "
                 "TIMESTAMP WITHOUT TIME ZONE, date_close TIMESTAMP WITHOUT "
                 "TIME ZONE)";
@@ -800,8 +823,9 @@ void DatabaseManager::createTablePrescribedMedications()
         {
             SQLCHAR createTableQuery[] =
                 "CREATE TABLE prescribed_medications (id SERIAL "
-                "PRIMARY KEY, id_visit INT REFERENCES visits(id), "
-                "id_medication INT REFERENCES medications(id))";
+                "PRIMARY KEY, id_visit INT REFERENCES visits(id) ON DELETE "
+                "CASCADE, "
+                "id_medication INT REFERENCES medications(id) ON DELETE CASCADE)";
             SQLRETURN createRet =
                 SQLExecDirect(hStmt, createTableQuery, SQL_NTS);
 
@@ -888,9 +912,10 @@ void DatabaseManager::createTablePrescribedProcedures()
         {
             SQLCHAR createTableQuery[] =
                 "CREATE TABLE prescribed_procedures (id SERIAL "
-                "PRIMARY KEY, id_visit INT REFERENCES visits(id), "
+                "PRIMARY KEY, id_visit INT REFERENCES visits(id) ON DELETE "
+                "CASCADE, "
                 "id_procedure "
-                "INT REFERENCES procedures(id),"
+                "INT REFERENCES procedures(id) ON DELETE CASCADE,"
                 "count INT)";
             SQLRETURN createRet =
                 SQLExecDirect(hStmt, createTableQuery, SQL_NTS);
@@ -976,8 +1001,10 @@ void DatabaseManager::createTableTestResults()
         {
             SQLCHAR createTableQuery[] =
                 "CREATE TABLE test_results (id SERIAL "
-                "PRIMARY KEY, id_visit INT REFERENCES visits(id), id_test "
-                "INT REFERENCES tests(id), result VARCHAR(255))";
+                "PRIMARY KEY, id_visit INT REFERENCES visits(id) ON DELETE "
+                "CASCADE, id_test "
+                "INT REFERENCES tests(id) ON DELETE CASCADE, result "
+                "VARCHAR(255))";
             SQLRETURN createRet =
                 SQLExecDirect(hStmt, createTableQuery, SQL_NTS);
 
@@ -1020,7 +1047,8 @@ void DatabaseManager::createTableDiagnosis()
         {
             SQLCHAR createTableQuery[] =
                 "CREATE TABLE diagnosis (id SERIAL "
-                "PRIMARY KEY, id_visit INT REFERENCES visits(id), description "
+                "PRIMARY KEY, id_visit INT REFERENCES visits(id) ON DELETE "
+                "CASCADE, description "
                 "VARCHAR(255))";
             SQLRETURN createRet =
                 SQLExecDirect(hStmt, createTableQuery, SQL_NTS);

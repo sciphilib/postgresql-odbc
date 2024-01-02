@@ -100,4 +100,8 @@ private:
     void updateTest();
     void updateVisit();
     void updateWeekday();
+
+    void deleteAll();
+    void deletePatient();
+    void deleteDoctor();
 };
