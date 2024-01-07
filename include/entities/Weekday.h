@@ -50,6 +50,7 @@ public:
         }
     }
 
+    int getId() const { return id_; }
     int toInt() const { return day_; }
     std::string toString() const { return DAYS[day_ - 1]; }
     void print() const override

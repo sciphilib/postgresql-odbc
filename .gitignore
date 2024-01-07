@@ -1,4 +1,4 @@
-.vscode
-.clang-format
+.*
 /bin
 /obj
+/build
