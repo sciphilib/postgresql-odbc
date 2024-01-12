@@ -16,6 +16,9 @@ DatabaseManager::DatabaseManager(const std::string& dsn,
     initGateways();
     initFacade();
     initDatabase();
+
+    DatabaseMenu menu(databaseFacade.get());
+    menu.start();
 }
 
 DatabaseManager::~DatabaseManager()

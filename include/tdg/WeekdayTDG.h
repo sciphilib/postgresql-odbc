@@ -10,6 +10,8 @@ class WeekdayTDG : public TableDataGateway
 public:
     WeekdayTDG(SQLHDBC hDbc) : TableDataGateway(hDbc) {}
 
+    std::shared_ptr<std::vector<BaseObject>> select(int limit, int offset) {}
+
     bool update(int id, const BaseObject& object) override {}
 
     bool deleteById(int id) override {}

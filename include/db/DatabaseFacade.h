@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Appointment.h"
+#include "Diagnosis.h"
 #include "Doctor.h"
 #include "Medication.h"
 #include "Patient.h"
@@ -8,11 +9,10 @@
 #include "PrescribedProcedure.h"
 #include "Procedure.h"
 #include "Specialization.h"
+#include "Test.h"
+#include "TestResult.h"
 #include "Visit.h"
 #include "Weekday.h"
-#include "TestResult.h"
-#include "Test.h"
-#include "Diagnosis.h"
 
 #include "AppointmentTDG.h"
 #include "DiagnosisTDG.h"
@@ -50,8 +50,8 @@ public:
           testResultTDG(testResultTDG), diagnosisTDG(diagnosisTDG)
     {
     }
-    void addWeekday(const std::string& dayName);
 
+    void addWeekday(const std::string& dayName);
     void addSpecialization(const std::string& name);
     void addDoctor(const std::string& lastName, const std::string& firstName,
                    const std::string& middleName, int idSpec);
@@ -83,6 +83,19 @@ public:
     std::unique_ptr<TestResult> findTestResultById(int id);
     std::unique_ptr<Test> findTestById(int id);
     std::unique_ptr<Diagnosis> findDiagnosisById(int id);
+
+    std::vector<Doctor> selectDoctorAll(int limit, int offset);
+    std::vector<Specialization> selectSpecializationAll(int limit, int offset);
+    std::vector<Appointment> selectAppointmentAll(int limit, int offset);
+    std::vector<Patient> selectPatientAll(int limit, int offset);
+    std::vector<Visit> selectVisitAll(int limit, int offset);
+    std::vector<PrescribedMedication> selectPrMedAll(int limit, int offset);
+    std::vector<Medication> selectMedicationAll(int limit, int offset);
+    std::vector<PrescribedProcedure> selectPrProcAll(int limit, int offset);
+    std::vector<Procedure> selectProcedureAll(int limit, int offset);
+    std::vector<TestResult> selectTestResultAll(int limit, int offset);
+    std::vector<Test> selectTestAll(int limit, int offset);
+    std::vector<Diagnosis> selectDiagnosisAll(int limit, int offset);
 
     bool updateAppointment(int id, const Appointment& appointment);
     bool updateDiagnosis(int id, const Diagnosis& diagnosis);

@@ -14,11 +14,11 @@ private:
         int id = 1;
         if (databaseFacade->deleteDoctor(id))
         {
-            std::cout << "Doctor with id  = " << id << " was deleted\n";
+            std::cout << "SUCCESS: Doctor with id  = " << id << " was deleted\n";
         }
         else
         {
-            std::cout << "Doctor with id  = " << id << " was NOT deleted\n";
+            std::cout << "FAIL: Doctor with id  = " << id << " was not deleted\n";
         }
     }
 };

@@ -10,6 +10,63 @@ class PrescribedMedicationTDG : public TableDataGateway
 public:
     PrescribedMedicationTDG(SQLHDBC hDbc) : TableDataGateway(hDbc) {}
 
+    std::vector<PrescribedMedication> select(int limit, int offset)
+    {
+        SQLHSTMT hStmt;
+        SQLRETURN retcode;
+        int id_, idVisit, idMedication;
+        auto prmeds = std::vector<PrescribedMedication>();
+
+        retcode = SQLAllocHandle(SQL_HANDLE_STMT, hDbc_, &hStmt);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error allocating SQL Handle\n";
+            return prmeds;
+        }
+
+        retcode = SQLPrepare(
+            hStmt,
+            (SQLCHAR*)"SELECT * FROM prescribed_medications LIMIT ? OFFSET ?",
+            SQL_NTS);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error preparing SQL query\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return prmeds;
+        }
+
+        retcode = SQLBindParameter(hStmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG,
+                                   SQL_INTEGER, 0, 0, &limit, 0, NULL);
+        retcode = SQLBindParameter(hStmt, 2, SQL_PARAM_INPUT, SQL_C_SLONG,
+                                   SQL_INTEGER, 0, 0, &offset, 0, NULL);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error binding parameters\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return prmeds;
+        }
+
+        retcode = SQLExecute(hStmt);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error executing SQL query\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return prmeds;
+        }
+
+        while (SQLFetch(hStmt) == SQL_SUCCESS)
+        {
+            SQLGetData(hStmt, 1, SQL_C_SLONG, &id_, 0, NULL);
+            SQLGetData(hStmt, 2, SQL_C_SLONG, &idVisit, 0, NULL);
+            SQLGetData(hStmt, 3, SQL_C_SLONG, &idMedication, 0, NULL);
+
+            prmeds.push_back(PrescribedMedication(id_, idVisit, idMedication));
+        }
+        SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+
+        return prmeds;
+    }
+
     bool deleteById(int id) override {}
 
     bool update(int id, const BaseObject& object) override {}

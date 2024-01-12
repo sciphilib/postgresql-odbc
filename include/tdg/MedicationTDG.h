@@ -10,6 +10,64 @@ class MedicationTDG : public TableDataGateway
 public:
     MedicationTDG(SQLHDBC hDbc) : TableDataGateway(hDbc) {}
 
+    std::vector<Medication> select(int limit, int offset)
+    {
+        SQLHSTMT hStmt;
+        SQLRETURN retcode;
+        int id_;
+        std::string name;
+        auto medications = std::vector<Medication>();
+
+        retcode = SQLAllocHandle(SQL_HANDLE_STMT, hDbc_, &hStmt);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error allocating SQL Handle\n";
+            return medications;
+        }
+
+        retcode = SQLPrepare(
+            hStmt, (SQLCHAR*)"SELECT * FROM medications LIMIT ? OFFSET ?", SQL_NTS);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error preparing SQL query\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return medications;
+        }
+
+        retcode = SQLBindParameter(hStmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG,
+                                   SQL_INTEGER, 0, 0, &limit, 0, NULL);
+        retcode = SQLBindParameter(hStmt, 2, SQL_PARAM_INPUT, SQL_C_SLONG,
+                                   SQL_INTEGER, 0, 0, &offset, 0, NULL);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error binding parameters\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return medications;
+        }
+
+        retcode = SQLExecute(hStmt);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error executing SQL query\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return medications;
+        }
+
+        SQLCHAR resultData[100];
+        while (SQLFetch(hStmt) == SQL_SUCCESS)
+        {
+            SQLGetData(hStmt, 1, SQL_C_SLONG, &id_, 0, NULL);
+            SQLGetData(hStmt, 2, SQL_C_CHAR, resultData, sizeof(resultData),
+                       NULL);
+            name = std::string(reinterpret_cast<char*>(resultData));
+
+            medications.push_back(Medication(id_, name));
+        }
+        SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+
+        return medications;
+    }
+
     bool deleteById(int id) override {}
 
     bool update(int id, const BaseObject& object) override
@@ -52,11 +110,11 @@ public:
             return false;
         }
 
-        retcode = SQLBindParameter(hStmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR,
-                                    SQL_VARCHAR, name.length(), 0,
-                                    (SQLCHAR*)name.c_str(), 0, NULL);
+        retcode =
+            SQLBindParameter(hStmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR,
+                             name.length(), 0, (SQLCHAR*)name.c_str(), 0, NULL);
         retcode += SQLBindParameter(hStmt, 2, SQL_PARAM_INPUT, SQL_C_SLONG,
-                                   SQL_INTEGER, 0, 0, &id, 0, NULL);
+                                    SQL_INTEGER, 0, 0, &id, 0, NULL);
         if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
         {
             std::cerr << "Error binding parameters\n";

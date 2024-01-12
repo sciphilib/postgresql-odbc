@@ -10,6 +10,64 @@ class TestTDG : public TableDataGateway
 public:
     TestTDG(SQLHDBC hDbc) : TableDataGateway(hDbc) {}
 
+    std::vector<Test> select(int limit, int offset)
+    {
+        SQLHSTMT hStmt;
+        SQLRETURN retcode;
+        int id_;
+        std::string name;
+        auto tests = std::vector<Test>();
+
+        retcode = SQLAllocHandle(SQL_HANDLE_STMT, hDbc_, &hStmt);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error allocating SQL Handle\n";
+            return tests;
+        }
+
+        retcode = SQLPrepare(
+            hStmt, (SQLCHAR*)"SELECT * FROM tests LIMIT ? OFFSET ?", SQL_NTS);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error preparing SQL query\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return tests;
+        }
+
+        retcode = SQLBindParameter(hStmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG,
+                                   SQL_INTEGER, 0, 0, &limit, 0, NULL);
+        retcode = SQLBindParameter(hStmt, 2, SQL_PARAM_INPUT, SQL_C_SLONG,
+                                   SQL_INTEGER, 0, 0, &offset, 0, NULL);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error binding parameters\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return tests;
+        }
+
+        retcode = SQLExecute(hStmt);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error executing SQL query\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return tests;
+        }
+
+        SQLCHAR resultData[100];
+        while (SQLFetch(hStmt) == SQL_SUCCESS)
+        {
+            SQLGetData(hStmt, 1, SQL_C_SLONG, &id_, 0, NULL);
+            SQLGetData(hStmt, 2, SQL_C_CHAR, resultData, sizeof(resultData),
+                       NULL);
+            name = std::string(reinterpret_cast<char*>(resultData));
+
+            tests.push_back(Test(id_, name));
+        }
+        SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+
+        return tests;
+    }
+
     bool update(int id, const BaseObject& object) override {}
 
     bool deleteById(int id) override {}

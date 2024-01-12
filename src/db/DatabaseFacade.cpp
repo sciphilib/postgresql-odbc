@@ -295,6 +295,87 @@ std::unique_ptr<Diagnosis> DatabaseFacade::findDiagnosisById(int id)
         return nullptr;
 }
 
+std::vector<Doctor> DatabaseFacade::selectDoctorAll(int limit, int offset)
+{
+    std::vector<Doctor> doctors{doctorTDG->select(limit, offset)};
+    return doctors;
+}
+
+std::vector<Specialization> DatabaseFacade::selectSpecializationAll(int limit,
+                                                                    int offset)
+{
+    std::vector<Specialization> specs{specializationTDG->select(limit, offset)};
+    return specs;
+}
+
+std::vector<PrescribedMedication> DatabaseFacade::selectPrMedAll(int limit,
+                                                                 int offset)
+{
+    std::vector<PrescribedMedication> prmeds{
+        prescribedMedicationTDG->select(limit, offset)};
+    return prmeds;
+}
+
+std::vector<TestResult> DatabaseFacade::selectTestResultAll(int limit,
+                                                            int offset)
+{
+    std::vector<TestResult> testResults{testResultTDG->select(limit, offset)};
+    return testResults;
+}
+
+std::vector<Test> DatabaseFacade::selectTestAll(int limit, int offset)
+{
+    std::vector<Test> tests{testTDG->select(limit, offset)};
+    return tests;
+}
+
+std::vector<Diagnosis> DatabaseFacade::selectDiagnosisAll(int limit, int offset)
+{
+    std::vector<Diagnosis> diagnosis{diagnosisTDG->select(limit, offset)};
+    return diagnosis;
+}
+
+std::vector<Procedure> DatabaseFacade::selectProcedureAll(int limit, int offset)
+{
+    std::vector<Procedure> procedures{procedureTDG->select(limit, offset)};
+    return procedures;
+}
+
+std::vector<Appointment> DatabaseFacade::selectAppointmentAll(int limit,
+                                                              int offset)
+{
+    std::vector<Appointment> appointments{
+        appointmentTDG->select(limit, offset)};
+    return appointments;
+}
+
+std::vector<Medication> DatabaseFacade::selectMedicationAll(int limit,
+                                                            int offset)
+{
+    std::vector<Medication> medications{medicationTDG->select(limit, offset)};
+    return medications;
+}
+
+std::vector<PrescribedProcedure> DatabaseFacade::selectPrProcAll(int limit,
+                                                                 int offset)
+{
+    std::vector<PrescribedProcedure> prprocs{
+        prescribedProcedureTDG->select(limit, offset)};
+    return prprocs;
+}
+
+std::vector<Patient> DatabaseFacade::selectPatientAll(int limit, int offset)
+{
+    std::vector<Patient> patients{patientTDG->select(limit, offset)};
+    return patients;
+}
+
+std::vector<Visit> DatabaseFacade::selectVisitAll(int limit, int offset)
+{
+    std::vector<Visit> visits{visitTDG->select(limit, offset)};
+    return visits;
+}
+
 bool DatabaseFacade::updateAppointment(int id, const Appointment& appointment)
 {
     std::unique_ptr<BaseObject> baseObject = appointmentTDG->findById(id);
@@ -340,12 +421,6 @@ bool DatabaseFacade::updatePatient(int id, const Patient& patient)
         return false;
 }
 
-bool DatabaseFacade::deleteDoctor(int id)
-{
-    return doctorTDG->deleteById(id);
-}
+bool DatabaseFacade::deleteDoctor(int id) { return doctorTDG->deleteById(id); }
 
-bool DatabaseFacade::deletePatient(int id)
-{
-    return true;
-}
+bool DatabaseFacade::deletePatient(int id) { return true; }

@@ -10,6 +10,65 @@ class PrescribedProcedureTDG : public TableDataGateway
 public:
     PrescribedProcedureTDG(SQLHDBC hDbc) : TableDataGateway(hDbc) {}
 
+    std::vector<PrescribedProcedure> select(int limit, int offset)
+    {
+        SQLHSTMT hStmt;
+        SQLRETURN retcode;
+        int id_, idVisit, idProcedure, count;
+        auto prprocs = std::vector<PrescribedProcedure>();
+
+        retcode = SQLAllocHandle(SQL_HANDLE_STMT, hDbc_, &hStmt);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error allocating SQL Handle\n";
+            return prprocs;
+        }
+
+        retcode = SQLPrepare(
+            hStmt,
+            (SQLCHAR*)"SELECT * FROM prescribed_procedures LIMIT ? OFFSET ?",
+            SQL_NTS);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error preparing SQL query\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return prprocs;
+        }
+
+        retcode = SQLBindParameter(hStmt, 1, SQL_PARAM_INPUT, SQL_C_SLONG,
+                                   SQL_INTEGER, 0, 0, &limit, 0, NULL);
+        retcode = SQLBindParameter(hStmt, 2, SQL_PARAM_INPUT, SQL_C_SLONG,
+                                   SQL_INTEGER, 0, 0, &offset, 0, NULL);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error binding parameters\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return prprocs;
+        }
+
+        retcode = SQLExecute(hStmt);
+        if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
+        {
+            std::cerr << "Error executing SQL query\n";
+            SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+            return prprocs;
+        }
+
+        while (SQLFetch(hStmt) == SQL_SUCCESS)
+        {
+            SQLGetData(hStmt, 1, SQL_C_SLONG, &id_, 0, NULL);
+            SQLGetData(hStmt, 2, SQL_C_SLONG, &idVisit, 0, NULL);
+            SQLGetData(hStmt, 3, SQL_C_SLONG, &idProcedure, 0, NULL);
+            SQLGetData(hStmt, 4, SQL_C_SLONG, &count, 0, NULL);
+
+            prprocs.push_back(
+                PrescribedProcedure(id_, idVisit, idProcedure, count));
+        }
+        SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+
+        return prprocs;
+    }
+
     bool update(int id, const BaseObject& object) override {}
 
     bool deleteById(int id) override {}
