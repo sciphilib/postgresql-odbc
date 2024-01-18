@@ -3,17 +3,21 @@
 #include "DatabaseCache.h"
 #include "DatabaseFacade.h"
 
+#include <iomanip>
+
 class DatabaseMenu
 {
 public:
     DatabaseMenu(DatabaseFacade* databaseFacade)
-        : databaseFacade(databaseFacade)
+        : databaseFacade(databaseFacade), entitiesOnPage(3)
     {
     }
     void start();
+    void setEntitiesOnPage(int count);
 
 private:
     DatabaseFacade* databaseFacade;
+    int entitiesOnPage;
 
     bool isDoctorCacheDirty;
     bool isSpecializationCacheDirty;
@@ -30,6 +34,7 @@ private:
 
     void init();
     int mainLoop();
+
     int doctorActivities();
     int specializationActivities();
     int patientActivities();
@@ -42,6 +47,9 @@ private:
     int testActivities();
     int testResultActivities();
     int visitActivities();
+
+    void printDoctor(int page);
+    void printFirstNDoctors(int start, int n);
 
     DatabaseCache<Appointment> appointments;
     DatabaseCache<Diagnosis> diagnosis;

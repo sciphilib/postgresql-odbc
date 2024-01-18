@@ -5,6 +5,9 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <tuple>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 class VisitTDG : public TableDataGateway
@@ -12,14 +15,14 @@ class VisitTDG : public TableDataGateway
 public:
     VisitTDG(SQLHDBC hDbc) : TableDataGateway(hDbc) {}
 
-    std::vector<Visit> select(int limit, int offset)
+    std::unordered_map<int, Visit> select(int limit, int offset)
     {
         SQLHSTMT hStmt;
         SQLRETURN retcode;
         int id_, idPatient, idDoctor;
         std::string complaints;
         DateTime dateVisit(false), dateDischarge(false), dateClose(false);
-        auto visits = std::vector<Visit>();
+        auto visits = std::unordered_map<int, Visit>();
 
         retcode = SQLAllocHandle(SQL_HANDLE_STMT, hDbc_, &hStmt);
         if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
@@ -101,8 +104,10 @@ public:
                 dateClose.setDateTime(timeStr);
             }
 
-            visits.push_back(Visit(id_, idPatient, idDoctor, complaints,
-                                   dateVisit, dateDischarge, dateClose));
+            visits.emplace(std::piecewise_construct, std::forward_as_tuple(id_),
+                           std::forward_as_tuple(
+                               Visit(id_, idPatient, idDoctor, complaints,
+                                     dateVisit, dateDischarge, dateClose)));
         }
         SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 

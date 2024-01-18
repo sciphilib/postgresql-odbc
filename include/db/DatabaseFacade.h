@@ -29,6 +29,7 @@
 #include "VisitTDG.h"
 #include "WeekdayTDG.h"
 #include <memory>
+#include <unordered_map>
 
 class DatabaseFacade
 {
@@ -84,11 +85,11 @@ public:
     std::unique_ptr<Test> findTestById(int id);
     std::unique_ptr<Diagnosis> findDiagnosisById(int id);
 
-    std::vector<Doctor> selectDoctorAll(int limit, int offset);
-    std::vector<Specialization> selectSpecializationAll(int limit, int offset);
-    std::vector<Appointment> selectAppointmentAll(int limit, int offset);
-    std::vector<Patient> selectPatientAll(int limit, int offset);
-    std::vector<Visit> selectVisitAll(int limit, int offset);
+    std::unordered_map<int, Doctor> selectDoctorAll(int limit, int offset);
+    std::unordered_map<int, Specialization> selectSpecializationAll(int limit, int offset);
+    std::unordered_map<int, Appointment> selectAppointmentAll(int limit, int offset);
+    std::unordered_map<int, Patient> selectPatientAll(int limit, int offset);
+    std::unordered_map<int, Visit> selectVisitAll(int limit, int offset);
     std::vector<PrescribedMedication> selectPrMedAll(int limit, int offset);
     std::vector<Medication> selectMedicationAll(int limit, int offset);
     std::vector<PrescribedProcedure> selectPrProcAll(int limit, int offset);

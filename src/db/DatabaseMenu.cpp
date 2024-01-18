@@ -1,4 +1,5 @@
 #include "DatabaseMenu.h"
+#include <string>
 
 void DatabaseMenu::start()
 {
@@ -8,6 +9,8 @@ void DatabaseMenu::start()
 
 void DatabaseMenu::init()
 {
+    entitiesOnPage = 5;
+
     doctors.addMultiple(databaseFacade->selectDoctorAll(100, 0));
     isDoctorCacheDirty = false;
 
@@ -119,6 +122,7 @@ int DatabaseMenu::mainLoop()
 
 int DatabaseMenu::doctorActivities()
 {
+    int page = 0;
     while (true)
     {
         std::cout << "\n*** Doctor activities ***\n";
@@ -135,13 +139,43 @@ int DatabaseMenu::doctorActivities()
         switch (choice)
         {
             case 1:
-                if (isDoctorCacheDirty)
+                while (1)
                 {
-                    auto doctorList = databaseFacade->selectDoctorAll(100, 0);
-                    doctors.addMultiple(doctorList);
-                    isDoctorCacheDirty = false;
+                    std::cout << "\nPage " << page + 1 << std::endl;
+                    std::cout << "1. Next page\n";
+                    std::cout << "2. Previoues page\n";
+                    std::cout << "3. Print\n";
+                    std::cout << "0. Back\n";
+                    std::cout << "Choose action: ";
+                    int choice;
+                    std::cin >> choice;
+                    switch (choice)
+                    {
+                        case 1:
+                            page++;
+                            break;
+                        case 2:
+                            page--;
+                            break;
+                        case 3:
+                            if (isDoctorCacheDirty)
+                            {
+                                auto doctorList =
+                                    databaseFacade->selectDoctorAll(100, 0);
+                                doctors.addMultiple(doctorList);
+                                isDoctorCacheDirty = false;
+                            }
+                            printDoctor(page);
+                            break;
+                        case 0:
+                            std::cout << "\n";
+                            return 0;
+                        default:
+                            std::cout
+                                << "Incorrect input. Please, choose number "
+                                   "from 1 to 5.\n";
+                    }
                 }
-                doctors.print();
                 break;
             case 2:
 
@@ -160,6 +194,58 @@ int DatabaseMenu::doctorActivities()
                              "from 1 to 5.\n";
         }
     }
+}
+
+void printWithBorder(const std::string& text)
+{
+    int width = 50;
+    std::string border(width, '*');
+    std::cout << '\n' << border << '\n';
+    std::cout << "* " << std::left << std::setw(width - 3) << text << "*\n";
+    std::cout << border << '\n';
+}
+
+void printFooter()
+{
+    int width = 50;
+    std::string border(width, '*');
+    std::cout << '\n' << border << '\n';
+}
+
+void DatabaseMenu::setEntitiesOnPage(int count) { entitiesOnPage = count; }
+
+void DatabaseMenu::printFirstNDoctors(int start, int n)
+{
+    int count = 0, idSpec;
+    std::string name, middleName, lastName, spec;
+    for (auto it = doctors.begin(); it != doctors.end() && count < start + n;
+         ++it)
+    {
+        if (count >= start)
+        {
+            auto doctor = it->second;
+            name = doctor.getFirstName();
+            middleName = doctor.getMiddleName();
+            lastName = doctor.getLastName();
+            idSpec = doctor.getIdSpec();
+            spec = (*(specializations.getFromCacheMap(idSpec))).getName();
+
+            std::cout << '\n'
+                      << count + 1 << "." << lastName << " " << name << " "
+                      << middleName << std::endl;
+            std::cout << "Specialization: " << spec << std::endl;
+        }
+        ++count;
+    }
+}
+
+void DatabaseMenu::printDoctor(int page)
+{
+
+    std::string header = "Doctors. Page " + std::to_string(page + 1);
+    printWithBorder(header);
+    printFirstNDoctors(page * entitiesOnPage, entitiesOnPage);
+    printFooter();
 }
 
 int DatabaseMenu::specializationActivities()
@@ -187,7 +273,7 @@ int DatabaseMenu::specializationActivities()
                     specializations.addMultiple(specList);
                     isSpecializationCacheDirty = false;
                 }
-                specializations.print();
+                specializations.printCacheMap();
                 break;
             case 2:
 
@@ -232,7 +318,7 @@ int DatabaseMenu::appointmentActivities()
                     appointments.addMultiple(appList);
                     isAppointmentCacheDirty = false;
                 }
-                appointments.print();
+                appointments.printCacheMap();
                 break;
             case 2:
 
@@ -277,7 +363,7 @@ int DatabaseMenu::patientActivities()
                     patients.addMultiple(patList);
                     isPatientCacheDirty = false;
                 }
-                patients.print();
+                patients.printCacheMap();
                 break;
             case 2:
 
@@ -322,7 +408,7 @@ int DatabaseMenu::visitActivities()
                     visits.addMultiple(visitsList);
                     isVisitCacheDirty = false;
                 }
-                visits.print();
+                visits.printCacheMap();
                 break;
             case 2:
 
@@ -636,7 +722,8 @@ int DatabaseMenu::diagnosisActivities()
             case 1:
                 if (isDiagnosisCacheDirty)
                 {
-                    auto diagnosisList = databaseFacade->selectDiagnosisAll(100, 0);
+                    auto diagnosisList =
+                        databaseFacade->selectDiagnosisAll(100, 0);
                     diagnosis.addMultiple(diagnosisList);
                     isDiagnosisCacheDirty = false;
                 }

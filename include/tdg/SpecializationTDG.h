@@ -4,19 +4,22 @@
 #include "TableDataGateway.h"
 #include <iostream>
 #include <memory>
+#include <tuple>
+#include <unordered_map>
+#include <utility>
 
 class SpecializationTDG : public TableDataGateway
 {
 public:
     SpecializationTDG(SQLHDBC hDbc) : TableDataGateway(hDbc) {}
 
-    std::vector<Specialization> select(int limit, int offset)
+    std::unordered_map<int, Specialization> select(int limit, int offset)
     {
         SQLHSTMT hStmt;
         SQLRETURN retcode;
         int id_;
         std::string name;
-        auto specs = std::vector<Specialization>();
+        auto specs = std::unordered_map<int, Specialization>();
 
         retcode = SQLAllocHandle(SQL_HANDLE_STMT, hDbc_, &hStmt);
         if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
@@ -62,7 +65,8 @@ public:
                        NULL);
             name = std::string(reinterpret_cast<char*>(resultData));
 
-            specs.push_back(Specialization(id_, name));
+            specs.emplace(std::piecewise_construct, std::forward_as_tuple(id_),
+                          std::forward_as_tuple(Specialization(id_, name)));
         }
 
         SQLFreeHandle(SQL_HANDLE_STMT, hStmt);

@@ -10,19 +10,20 @@
 #include <sqltypes.h>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 
 class AppointmentTDG : public TableDataGateway
 {
 public:
     AppointmentTDG(SQLHDBC hDbc) : TableDataGateway(hDbc) {}
 
-    std::vector<Appointment> select(int limit, int offset)
+    std::unordered_map<int, Appointment> select(int limit, int offset)
     {
         SQLHSTMT hStmt;
         SQLRETURN retcode;
         int id_, idDoctor, idDayOfWeek, office, district;
         DateTime beginDate(true), endDate(true);
-        auto appointments = std::vector<Appointment>();
+        auto appointments = std::unordered_map<int, Appointment>();
 
         retcode = SQLAllocHandle(SQL_HANDLE_STMT, hDbc_, &hStmt);
         if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
@@ -86,9 +87,11 @@ public:
             SQLGetData(hStmt, 6, SQL_C_SLONG, &office, 0, NULL);
             SQLGetData(hStmt, 7, SQL_C_SLONG, &district, 0, NULL);
 
-            appointments.push_back(Appointment(id_, idDoctor, idDayOfWeek,
-                                               beginDate, endDate, office,
-                                               district));
+            appointments.emplace(
+                std::piecewise_construct, std::forward_as_tuple(id_),
+                std::forward_as_tuple(Appointment(id_, idDoctor, idDayOfWeek,
+                                                  beginDate, endDate, office,
+                                                  district)));
         }
         SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 
