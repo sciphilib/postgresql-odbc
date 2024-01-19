@@ -16,6 +16,9 @@ DatabaseManager::DatabaseManager(const std::string& dsn,
     initGateways();
     initFacade();
     initDatabase();
+
+    DatabaseMenu menu(databaseFacade.get());
+    menu.start();
 }
 
 DatabaseManager::~DatabaseManager()
@@ -88,10 +91,10 @@ void DatabaseManager::initGateways()
 void DatabaseManager::initDatabase()
 {
     createTableAll();
-    insertAll();
-    findSomeObjects();
+    //insertAll();
+    /* findSomeObjects();
     updateAll();
-    deleteAll();
+    deleteAll(); */
 
     /* Parser parser;
     parser.parseAppointment("data/appointments.json");

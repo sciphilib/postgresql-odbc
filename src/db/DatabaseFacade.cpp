@@ -1,6 +1,7 @@
 #include "DatabaseFacade.h"
 #include <memory>
 #include <string>
+#include <unordered_map>
 
 void DatabaseFacade::addWeekday(const std::string& dayName)
 {
@@ -295,6 +296,79 @@ std::unique_ptr<Diagnosis> DatabaseFacade::findDiagnosisById(int id)
         return nullptr;
 }
 
+std::unordered_map<int, Doctor> DatabaseFacade::selectDoctorAll(int limit,
+                                                                int offset)
+{
+    return doctorTDG->select(limit, offset);
+}
+
+std::unordered_map<int, Specialization>
+DatabaseFacade::selectSpecializationAll(int limit, int offset)
+{
+    return specializationTDG->select(limit, offset);
+}
+
+std::unordered_map<int, PrescribedMedication>
+DatabaseFacade::selectPrMedAll(int limit, int offset)
+{
+    return prescribedMedicationTDG->select(limit, offset);
+}
+
+std::unordered_map<int, TestResult>
+DatabaseFacade::selectTestResultAll(int limit, int offset)
+{
+    return testResultTDG->select(limit, offset);
+}
+
+std::unordered_map<int, Test> DatabaseFacade::selectTestAll(int limit,
+                                                            int offset)
+{
+    return testTDG->select(limit, offset);
+}
+
+std::unordered_map<int, Diagnosis>
+DatabaseFacade::selectDiagnosisAll(int limit, int offset)
+{
+    return diagnosisTDG->select(limit, offset);
+}
+
+std::unordered_map<int, Procedure>
+DatabaseFacade::selectProcedureAll(int limit, int offset)
+{
+    return procedureTDG->select(limit, offset);
+}
+
+std::unordered_map<int, Appointment>
+DatabaseFacade::selectAppointmentAll(int limit, int offset)
+{
+    return appointmentTDG->select(limit, offset);
+}
+
+std::unordered_map<int, Medication>
+DatabaseFacade::selectMedicationAll(int limit, int offset)
+{
+    return medicationTDG->select(limit, offset);
+}
+
+std::unordered_map<int, PrescribedProcedure>
+DatabaseFacade::selectPrProcAll(int limit, int offset)
+{
+
+    return prescribedProcedureTDG->select(limit, offset);
+}
+
+std::unordered_map<int, Patient> DatabaseFacade::selectPatientAll(int limit,
+                                                                  int offset)
+{
+    return patientTDG->select(limit, offset);
+}
+
+std::unordered_map<int, Visit> DatabaseFacade::selectVisitAll(int limit,
+                                                              int offset)
+{
+    return visitTDG->select(limit, offset);
+}
+
 bool DatabaseFacade::updateAppointment(int id, const Appointment& appointment)
 {
     std::unique_ptr<BaseObject> baseObject = appointmentTDG->findById(id);
@@ -340,12 +414,6 @@ bool DatabaseFacade::updatePatient(int id, const Patient& patient)
         return false;
 }
 
-bool DatabaseFacade::deleteDoctor(int id)
-{
-    return doctorTDG->deleteById(id);
-}
+bool DatabaseFacade::deleteDoctor(int id) { return doctorTDG->deleteById(id); }
 
-bool DatabaseFacade::deletePatient(int id)
-{
-    return true;
-}
+bool DatabaseFacade::deletePatient(int id) { return true; }

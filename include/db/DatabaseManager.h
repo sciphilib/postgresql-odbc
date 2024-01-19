@@ -5,6 +5,7 @@
 #include <sqlext.h>
 #include <sqltypes.h>
 
+#include "DatabaseMenu.h"
 #include "AppointmentTDG.h"
 #include "DatabaseFacade.h"
 #include "DiagnosisTDG.h"
