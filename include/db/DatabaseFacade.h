@@ -84,7 +84,7 @@ public:
     std::unique_ptr<TestResult> findTestResultById(int id);
     std::unique_ptr<Test> findTestById(int id);
     std::unique_ptr<Diagnosis> findDiagnosisById(int id);
-
+  
     std::unordered_map<int, Doctor> selectDoctorAll(int limit, int offset);
     std::unordered_map<int, Specialization> selectSpecializationAll(int limit, int offset);
     std::unordered_map<int, Appointment> selectAppointmentAll(int limit, int offset);
