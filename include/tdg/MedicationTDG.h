@@ -4,19 +4,22 @@
 #include "TableDataGateway.h"
 #include <iostream>
 #include <memory>
+#include <tuple>
+#include <unordered_map>
+#include <utility>
 
 class MedicationTDG : public TableDataGateway
 {
 public:
     MedicationTDG(SQLHDBC hDbc) : TableDataGateway(hDbc) {}
 
-    std::vector<Medication> select(int limit, int offset)
+    std::unordered_map<int, Medication> select(int limit, int offset)
     {
         SQLHSTMT hStmt;
         SQLRETURN retcode;
         int id_;
         std::string name;
-        auto medications = std::vector<Medication>();
+        auto medications = std::unordered_map<int, Medication>();
 
         retcode = SQLAllocHandle(SQL_HANDLE_STMT, hDbc_, &hStmt);
         if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
@@ -26,7 +29,8 @@ public:
         }
 
         retcode = SQLPrepare(
-            hStmt, (SQLCHAR*)"SELECT * FROM medications LIMIT ? OFFSET ?", SQL_NTS);
+            hStmt, (SQLCHAR*)"SELECT * FROM medications LIMIT ? OFFSET ?",
+            SQL_NTS);
         if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
         {
             std::cerr << "Error preparing SQL query\n";
@@ -61,7 +65,9 @@ public:
                        NULL);
             name = std::string(reinterpret_cast<char*>(resultData));
 
-            medications.push_back(Medication(id_, name));
+            medications.emplace(std::piecewise_construct,
+                                std::forward_as_tuple(id_),
+                                std::forward_as_tuple(Medication(id_, name)));
         }
         SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 

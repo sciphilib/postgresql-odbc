@@ -90,13 +90,13 @@ public:
     std::unordered_map<int, Appointment> selectAppointmentAll(int limit, int offset);
     std::unordered_map<int, Patient> selectPatientAll(int limit, int offset);
     std::unordered_map<int, Visit> selectVisitAll(int limit, int offset);
-    std::vector<PrescribedMedication> selectPrMedAll(int limit, int offset);
-    std::vector<Medication> selectMedicationAll(int limit, int offset);
-    std::vector<PrescribedProcedure> selectPrProcAll(int limit, int offset);
-    std::vector<Procedure> selectProcedureAll(int limit, int offset);
-    std::vector<TestResult> selectTestResultAll(int limit, int offset);
-    std::vector<Test> selectTestAll(int limit, int offset);
-    std::vector<Diagnosis> selectDiagnosisAll(int limit, int offset);
+    std::unordered_map<int, PrescribedMedication> selectPrMedAll(int limit, int offset);
+    std::unordered_map<int, Medication> selectMedicationAll(int limit, int offset);
+    std::unordered_map<int, PrescribedProcedure> selectPrProcAll(int limit, int offset);
+    std::unordered_map<int, Procedure> selectProcedureAll(int limit, int offset);
+    std::unordered_map<int, TestResult> selectTestResultAll(int limit, int offset);
+    std::unordered_map<int, Test> selectTestAll(int limit, int offset);
+    std::unordered_map<int, Diagnosis> selectDiagnosisAll(int limit, int offset);
 
     bool updateAppointment(int id, const Appointment& appointment);
     bool updateDiagnosis(int id, const Diagnosis& diagnosis);

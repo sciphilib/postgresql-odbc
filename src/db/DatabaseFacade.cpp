@@ -302,74 +302,69 @@ std::unordered_map<int, Doctor> DatabaseFacade::selectDoctorAll(int limit,
     return doctorTDG->select(limit, offset);
 }
 
-std::unordered_map<int, Specialization> DatabaseFacade::selectSpecializationAll(int limit,
-                                                                    int offset)
+std::unordered_map<int, Specialization>
+DatabaseFacade::selectSpecializationAll(int limit, int offset)
 {
     return specializationTDG->select(limit, offset);
 }
 
-std::vector<PrescribedMedication> DatabaseFacade::selectPrMedAll(int limit,
-                                                                 int offset)
+std::unordered_map<int, PrescribedMedication>
+DatabaseFacade::selectPrMedAll(int limit, int offset)
 {
-    std::vector<PrescribedMedication> prmeds{
-        prescribedMedicationTDG->select(limit, offset)};
-    return prmeds;
+    return prescribedMedicationTDG->select(limit, offset);
 }
 
-std::vector<TestResult> DatabaseFacade::selectTestResultAll(int limit,
+std::unordered_map<int, TestResult>
+DatabaseFacade::selectTestResultAll(int limit, int offset)
+{
+    return testResultTDG->select(limit, offset);
+}
+
+std::unordered_map<int, Test> DatabaseFacade::selectTestAll(int limit,
                                                             int offset)
 {
-    std::vector<TestResult> testResults{testResultTDG->select(limit, offset)};
-    return testResults;
+    return testTDG->select(limit, offset);
 }
 
-std::vector<Test> DatabaseFacade::selectTestAll(int limit, int offset)
+std::unordered_map<int, Diagnosis>
+DatabaseFacade::selectDiagnosisAll(int limit, int offset)
 {
-    std::vector<Test> tests{testTDG->select(limit, offset)};
-    return tests;
+    return diagnosisTDG->select(limit, offset);
 }
 
-std::vector<Diagnosis> DatabaseFacade::selectDiagnosisAll(int limit, int offset)
+std::unordered_map<int, Procedure>
+DatabaseFacade::selectProcedureAll(int limit, int offset)
 {
-    std::vector<Diagnosis> diagnosis{diagnosisTDG->select(limit, offset)};
-    return diagnosis;
-}
-
-std::vector<Procedure> DatabaseFacade::selectProcedureAll(int limit, int offset)
-{
-    std::vector<Procedure> procedures{procedureTDG->select(limit, offset)};
-    return procedures;
+    return procedureTDG->select(limit, offset);
 }
 
 std::unordered_map<int, Appointment>
 DatabaseFacade::selectAppointmentAll(int limit, int offset)
 {
-    std::unordered_map<int, Appointment> appointments{
-        appointmentTDG->select(limit, offset)};
-    return appointments;
+    return appointmentTDG->select(limit, offset);
 }
 
-std::vector<Medication> DatabaseFacade::selectMedicationAll(int limit,
-                                                            int offset)
+std::unordered_map<int, Medication>
+DatabaseFacade::selectMedicationAll(int limit, int offset)
 {
-    std::vector<Medication> medications{medicationTDG->select(limit, offset)};
-    return medications;
+    return medicationTDG->select(limit, offset);
 }
 
-std::vector<PrescribedProcedure> DatabaseFacade::selectPrProcAll(int limit,
-                                                                 int offset)
+std::unordered_map<int, PrescribedProcedure>
+DatabaseFacade::selectPrProcAll(int limit, int offset)
 {
-    std::vector<PrescribedProcedure> prprocs{
-        prescribedProcedureTDG->select(limit, offset)};
-    return prprocs;
+
+    return prescribedProcedureTDG->select(limit, offset);
 }
 
-std::unordered_map<int, Patient> DatabaseFacade::selectPatientAll(int limit, int offset)
+std::unordered_map<int, Patient> DatabaseFacade::selectPatientAll(int limit,
+                                                                  int offset)
 {
     return patientTDG->select(limit, offset);
 }
 
-std::unordered_map<int, Visit> DatabaseFacade::selectVisitAll(int limit, int offset)
+std::unordered_map<int, Visit> DatabaseFacade::selectVisitAll(int limit,
+                                                              int offset)
 {
     return visitTDG->select(limit, offset);
 }

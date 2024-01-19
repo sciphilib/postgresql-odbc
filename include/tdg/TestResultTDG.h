@@ -4,19 +4,22 @@
 #include "TestResult.h"
 #include <iostream>
 #include <memory>
+#include <tuple>
+#include <unordered_map>
+#include <utility>
 
 class TestResultTDG : public TableDataGateway
 {
 public:
     TestResultTDG(SQLHDBC hDbc) : TableDataGateway(hDbc) {}
 
-    std::vector<TestResult> select(int limit, int offset)
+    std::unordered_map<int, TestResult> select(int limit, int offset)
     {
         SQLHSTMT hStmt;
         SQLRETURN retcode;
         int id_, idVisit, idTest;
         std::string result;
-        auto test_results = std::vector<TestResult>();
+        auto test_results = std::unordered_map<int, TestResult>();
 
         retcode = SQLAllocHandle(SQL_HANDLE_STMT, hDbc_, &hStmt);
         if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
@@ -64,7 +67,10 @@ public:
                        NULL);
             result = std::string(reinterpret_cast<char*>(resultData));
 
-            test_results.push_back(TestResult(id_, idVisit, idTest, result));
+            test_results.emplace(std::piecewise_construct,
+                                 std::forward_as_tuple(id_),
+                                 std::forward_as_tuple(
+                                     TestResult(id_, idVisit, idTest, result)));
         }
         SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 

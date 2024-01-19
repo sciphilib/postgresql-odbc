@@ -5,19 +5,22 @@
 #include <iostream>
 #include <memory>
 #include <sql.h>
+#include <tuple>
+#include <unordered_map>
+#include <utility>
 
 class DiagnosisTDG : public TableDataGateway
 {
 public:
     DiagnosisTDG(SQLHDBC hDbc) : TableDataGateway(hDbc) {}
 
-    std::vector<Diagnosis> select(int limit, int offset)
+    std::unordered_map<int, Diagnosis> select(int limit, int offset)
     {
         SQLHSTMT hStmt;
         SQLRETURN retcode;
         int id_, idVisit;
         std::string description;
-        auto diagnosis = std::vector<Diagnosis>();
+        auto diagnosis = std::unordered_map<int, Diagnosis>();
 
         retcode = SQLAllocHandle(SQL_HANDLE_STMT, hDbc_, &hStmt);
         if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
@@ -64,7 +67,9 @@ public:
                        NULL);
             description = std::string(reinterpret_cast<char*>(resultData));
 
-            diagnosis.push_back(Diagnosis(id_, idVisit, description));
+            diagnosis.emplace(
+                std::piecewise_construct, std::forward_as_tuple(id_),
+                std::forward_as_tuple(Diagnosis(id_, idVisit, description)));
         }
         SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 

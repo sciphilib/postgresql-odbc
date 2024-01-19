@@ -48,8 +48,30 @@ private:
     int testResultActivities();
     int visitActivities();
 
-    void printDoctor(int page);
+    void printDoctors(int page);
     void printFirstNDoctors(int start, int n);
+    void printSpecializations(int page);
+    void printFirstNSpecializations(int start, int n);
+    void printAppointments(int page);
+    void printFirstNAppointments(int start, int n);
+    void printPatients(int page);
+    void printFirstNPatients(int start, int n);
+    void printVisits(int page);
+    void printFirstNVisits(int start, int n);
+    void printDiagnosis(int page);
+    void printFirstNDiagnosis(int start, int n);
+    void printTests(int page);
+    void printFirstNTests(int start, int n);
+    void printTestResults(int page);
+    void printFirstNTestResults(int start, int n);
+    void printProcedures(int page);
+    void printFirstNProcedures(int start, int n);
+    void printPrescribedProcedures(int page);
+    void printFirstNPrescribedProcedures(int start, int n);
+    void printMedications(int page);
+    void printFirstNMedications(int start, int n);
+    void printPrescribedMedications(int page);
+    void printFirstNPrescribedMedications(int start, int n);
 
     DatabaseCache<Appointment> appointments;
     DatabaseCache<Diagnosis> diagnosis;

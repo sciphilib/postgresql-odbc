@@ -4,18 +4,21 @@
 #include "TableDataGateway.h"
 #include <iostream>
 #include <memory>
+#include <tuple>
+#include <unordered_map>
+#include <utility>
 
 class PrescribedMedicationTDG : public TableDataGateway
 {
 public:
     PrescribedMedicationTDG(SQLHDBC hDbc) : TableDataGateway(hDbc) {}
 
-    std::vector<PrescribedMedication> select(int limit, int offset)
+    std::unordered_map<int, PrescribedMedication> select(int limit, int offset)
     {
         SQLHSTMT hStmt;
         SQLRETURN retcode;
         int id_, idVisit, idMedication;
-        auto prmeds = std::vector<PrescribedMedication>();
+        auto prmeds = std::unordered_map<int, PrescribedMedication>();
 
         retcode = SQLAllocHandle(SQL_HANDLE_STMT, hDbc_, &hStmt);
         if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO)
@@ -60,7 +63,9 @@ public:
             SQLGetData(hStmt, 2, SQL_C_SLONG, &idVisit, 0, NULL);
             SQLGetData(hStmt, 3, SQL_C_SLONG, &idMedication, 0, NULL);
 
-            prmeds.push_back(PrescribedMedication(id_, idVisit, idMedication));
+            prmeds.emplace(std::piecewise_construct, std::forward_as_tuple(id_),
+                           std::forward_as_tuple(PrescribedMedication(
+                               id_, idVisit, idMedication)));
         }
         SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 
