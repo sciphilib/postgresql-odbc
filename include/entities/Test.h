@@ -16,9 +16,9 @@ public:
     void setName(std::string& name) { name_ = name; }
     void print() const override
     {
-        std::cout << "Test: id = " << id_ << ", name = " << name_
-                  << std::endl;
+        std::cout << "Test: id = " << id_ << ", name = " << name_ << std::endl;
     }
+    void printNormal() const { std::cout << name_ << std::endl; }
 
 private:
     int id_;

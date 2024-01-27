@@ -19,6 +19,7 @@ public:
         std::cout << "Specialization: id = " << id_ << ", name = " << name_
                   << std::endl;
     }
+    void printNormal() const { std::cout << name_ << std::endl; }
 
 private:
     int id_;
