@@ -26,8 +26,19 @@ public:
         int num = 0;
         for (const auto& i : cache)
         {
-            std::cout << num++ << " | ";
+            std::cout << num++ << ". ";
             i.print();
+            std::cout << std::endl;
+        }
+    }
+
+    void printNormal() const
+    {
+        int num = 0;
+        for (const auto& i : cache)
+        {
+            std::cout << num++ << ". ";
+            i.printNormal();
             std::cout << std::endl;
         }
     }
@@ -37,9 +48,19 @@ public:
         int num = 0;
         for (const auto& i : cacheMap)
         {
-            std::cout << num++ << " | ";
+            std::cout << num++ << ". ";
             i.second.print();
             std::cout << std::endl;
+        }
+    }
+
+    void printCacheMapNormal() const
+    {
+        int num = 1;
+        for (const auto& i : cacheMap)
+        {
+            std::cout << num++ << ". ";
+            i.second.printNormal();
         }
     }
 
@@ -69,7 +90,16 @@ public:
         return std::nullopt;
     }
 
-    T& get(int id) { return cacheMap.at(id); }
+    T& get(int n)
+    {
+        int i = 0;
+        for (auto it = cacheMap.begin(); it != cacheMap.end(); it++)
+        {
+            if (i == n)
+                return it->second;
+            i++;
+        }
+    }
 
     void removeFromCacheMap(int id) { cacheMap.erase(id); }
 

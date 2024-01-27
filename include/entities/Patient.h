@@ -38,6 +38,10 @@ public:
                   << ", middleName = " << middleName_
                   << ", address = " << address_ << std::endl;
     }
+    void printNormal() const
+    {
+        std::cout << lastName_ << " " << firstName_ << " " << middleName_ << std::endl;
+    }
 
 private:
     int id_;

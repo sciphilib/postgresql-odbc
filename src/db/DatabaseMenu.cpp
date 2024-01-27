@@ -1,6 +1,9 @@
 #include "DatabaseMenu.h"
+#include <sstream>
 #include <string>
 #include <sys/types.h>
+
+std::string readLineFromConsole();
 
 void DatabaseMenu::start()
 {
@@ -121,6 +124,943 @@ int DatabaseMenu::mainLoop()
     }
 }
 
+void DatabaseMenu::invalidateSpecializations()
+{
+    if (isSpecializationCacheDirty)
+    {
+        auto specList = databaseFacade->selectSpecializationAll(100, 0);
+        specializations.addMultiple(specList);
+        isSpecializationCacheDirty = false;
+    }
+}
+
+void DatabaseMenu::invalidatePrescribedMedications()
+{
+    if (isPrMedCacheDirty)
+    {
+        auto prMedsList = databaseFacade->selectPrMedAll(100, 0);
+        prmeds.addMultiple(prMedsList);
+        isPrMedCacheDirty = false;
+    }
+}
+
+void DatabaseMenu::invalidateTests()
+{
+    if (isTestCacheDirty)
+    {
+        auto testsList = databaseFacade->selectTestAll(100, 0);
+        tests.addMultiple(testsList);
+        isTestCacheDirty = false;
+    }
+}
+
+void DatabaseMenu::invalidateDiagnosis()
+{
+    if (isDiagnosisCacheDirty)
+    {
+        auto diagnosisList = databaseFacade->selectDiagnosisAll(100, 0);
+        diagnosis.addMultiple(diagnosisList);
+        isDiagnosisCacheDirty = false;
+    }
+}
+
+void DatabaseMenu::invalidateTestResults()
+{
+    if (isTestResultCacheDirty)
+    {
+        auto testResultsList = databaseFacade->selectTestResultAll(100, 0);
+        testResults.addMultiple(testResultsList);
+        isTestResultCacheDirty = false;
+    }
+}
+
+void DatabaseMenu::invalidateDoctors()
+{
+    if (isDoctorCacheDirty)
+    {
+        auto doctorList = databaseFacade->selectDoctorAll(100, 0);
+        doctors.addMultiple(doctorList);
+        isDoctorCacheDirty = false;
+    }
+}
+
+void DatabaseMenu::invalidatePrescribedProcedures()
+{
+    if (isPrProcCacheDirty)
+    {
+        auto prprocsList = databaseFacade->selectPrProcAll(100, 0);
+        prprocs.addMultiple(prprocsList);
+        isPrProcCacheDirty = false;
+    }
+}
+
+void DatabaseMenu::invalidateMedications()
+{
+    if (isMedicationCacheDirty)
+    {
+        auto medicationsList = databaseFacade->selectMedicationAll(100, 0);
+        medications.addMultiple(medicationsList);
+        isMedicationCacheDirty = false;
+    }
+}
+
+void DatabaseMenu::invalidateProcedures()
+{
+    if (isProcedureCacheDirty)
+    {
+        auto proceduresList = databaseFacade->selectProcedureAll(100, 0);
+        procedures.addMultiple(proceduresList);
+        isProcedureCacheDirty = false;
+    }
+}
+
+void DatabaseMenu::invalidateVisits()
+{
+    if (isVisitCacheDirty)
+    {
+        auto visitsList = databaseFacade->selectVisitAll(100, 0);
+        visits.addMultiple(visitsList);
+        isVisitCacheDirty = false;
+    }
+}
+
+void DatabaseMenu::invalidatePatients()
+{
+    if (isPatientCacheDirty)
+    {
+        auto patList = databaseFacade->selectPatientAll(100, 0);
+        patients.addMultiple(patList);
+        isPatientCacheDirty = false;
+    }
+}
+
+void DatabaseMenu::invalidateAppointments()
+{
+    if (isAppointmentCacheDirty)
+    {
+        auto appList = databaseFacade->selectAppointmentAll(100, 0);
+        appointments.addMultiple(appList);
+        isAppointmentCacheDirty = false;
+    }
+}
+
+void DatabaseMenu::addDoctorMenu()
+{
+    std::string lastName, firstName, middleName;
+    int spec, idSpec;
+
+    std::cout << "\nEnter doctor's last name: ";
+    std::cin >> lastName;
+    std::cout << "Enter doctor's first name: ";
+    std::cin >> firstName;
+    std::cout << "Enter doctor's middle name: ";
+    std::cin >> middleName;
+    std::cout << "Choose doctor's specialization. \n";
+
+    invalidateSpecializations();
+    specializations.printCacheMapNormal();
+    std::cout << "Enter specialization number: ";
+    std::cin >> spec;
+    auto specObj = specializations.get(spec - 1);
+    idSpec = specObj.getId();
+
+    databaseFacade->addDoctor(lastName, firstName, middleName, idSpec);
+    isDoctorCacheDirty = true;
+}
+
+void DatabaseMenu::addPrescribedProcedureMenu()
+{
+    int visit, idVisit, procedure, idProcedure, choice, count = 0, page = 0;
+
+    std::cout << "\nTo add new prescribed procedure choose visit and "
+                 "procedure first\n";
+
+    std::cout << "\nChoose visit:" << std::endl;
+    invalidateProcedures();
+    invalidateVisits();
+    printFirstNVisits(page * entitiesOnPage, entitiesOnPage);
+    while (true)
+    {
+        std::cout << "\n1. Print next visits" << std::endl;
+        std::cout << "2. Continue prescribed procedure creating" << std::endl;
+        std::cout << "0. Cancel creating" << std::endl;
+        std::cin >> choice;
+
+        switch (choice)
+        {
+            case 1:
+                printFirstNVisits(++page * entitiesOnPage, entitiesOnPage);
+                break;
+            case 2:
+            {
+                std::cout << "\nChoose visit: ";
+                std::cin >> visit;
+
+                auto visitObj = visits.get(visit - 1);
+                idVisit = visitObj.getId();
+
+                std::cout
+                    << "\nThen choose procedure to make prescribed procedure."
+                    << std::endl;
+                procedures.printCacheMapNormal();
+                std::cout << "\nChoose procedure: ";
+                std::cin >> procedure;
+                auto procedureObj = procedures.get(procedure - 1);
+                idProcedure = procedureObj.getId();
+
+                std::cout << "\nEnter procedure's count: ";
+                std::cin >> count;
+
+                databaseFacade->addPrescribedProcedure(idVisit, idProcedure,
+                                                       count);
+                isPrProcCacheDirty = true;
+                return;
+            }
+            case 0:
+                return;
+            default:
+                std::cout << "Incorrect input. Please, choose number "
+                             "from 0 to 2.\n";
+        }
+    }
+}
+
+void DatabaseMenu::addMedicationMenu()
+{
+    std::string name;
+
+    std::cout << "\nEnter medication's name:";
+    name = readLineFromConsole();
+
+    databaseFacade->addMedication(name);
+    isMedicationCacheDirty = true;
+}
+
+void DatabaseMenu::addPrescribedMedicationMenu()
+{
+    int visit, idVisit, medication, idMedication, choice, page = 0;
+
+    std::cout << "\nTo add new prescribed medication choose visit and "
+                 "medication first\n";
+
+    std::cout << "\nChoose visit:" << std::endl;
+    invalidateMedications();
+    invalidateVisits();
+    printFirstNVisits(page * entitiesOnPage, entitiesOnPage);
+    while (true)
+    {
+        std::cout << "\n1. Print next visits" << std::endl;
+        std::cout << "2. Continue prescribed medication creating" << std::endl;
+        std::cout << "0. Cancel creating" << std::endl;
+        std::cin >> choice;
+
+        switch (choice)
+        {
+            case 1:
+                printFirstNVisits(++page * entitiesOnPage, entitiesOnPage);
+                break;
+            case 2:
+            {
+                std::cout << "\nChoose visit: ";
+                std::cin >> visit;
+
+                auto visitObj = visits.get(visit - 1);
+                idVisit = visitObj.getId();
+
+                std::cout
+                    << "\nThen choose medication to make prescribed medication."
+                    << std::endl;
+                medications.printCacheMapNormal();
+                std::cout << "\nChoose medication: ";
+                std::cin >> medication;
+                auto medicationObj = medications.get(medication - 1);
+                idMedication = medicationObj.getId();
+
+                databaseFacade->addPrescribedMedication(idVisit, idMedication);
+                isPrMedCacheDirty = true;
+                return;
+            }
+            case 0:
+                return;
+            default:
+                std::cout << "Incorrect input. Please, choose number "
+                             "from 0 to 2.\n";
+        }
+    }
+}
+
+void DatabaseMenu::addTestResultMenu()
+{
+    std::string result;
+    int visit, idVisit, test, idTest, choice, page = 0;
+
+    std::cout << "\nTo add new test result choose visit and test first\n";
+
+    std::cout << "\nChoose visit:" << std::endl;
+    invalidateVisits();
+    invalidateTests();
+    printFirstNVisits(page * entitiesOnPage, entitiesOnPage);
+    while (true)
+    {
+        std::cout << "\n1. Print next visits" << std::endl;
+        std::cout << "2. Continue test result creating" << std::endl;
+        std::cout << "0. Cancel creating" << std::endl;
+        std::cin >> choice;
+
+        switch (choice)
+        {
+            case 1:
+                printFirstNVisits(++page * entitiesOnPage, entitiesOnPage);
+                break;
+            case 2:
+            {
+                std::cout << "\nChoose visit: ";
+                std::cin >> visit;
+
+                auto visitObj = visits.get(visit - 1);
+                idVisit = visitObj.getId();
+
+                std::cout << "\nThen choose test to make test result."
+                          << std::endl;
+                tests.printCacheMapNormal();
+                std::cout << "\nChoose test: ";
+                std::cin >> test;
+                auto testObj = tests.get(test - 1);
+                idTest = testObj.getId();
+
+                std::cout << "\nWrite test result:";
+                result = readLineFromConsole();
+
+                databaseFacade->addTestResult(idVisit, idTest, result);
+                isTestResultCacheDirty = true;
+                return;
+            }
+            case 0:
+                return;
+            default:
+                std::cout << "Incorrect input. Please, choose number "
+                             "from 0 to 2.\n";
+        }
+    }
+}
+
+void DatabaseMenu::addTestMenu()
+{
+    std::string name;
+
+    std::cout << "\nEnter test name:";
+    name = readLineFromConsole();
+
+    databaseFacade->addTest(name);
+    isTestCacheDirty = true;
+}
+
+void DatabaseMenu::addProcedureMenu()
+{
+    std::string name;
+
+    std::cout << "\nEnter procedure name:";
+    name = readLineFromConsole();
+
+    databaseFacade->addProcedure(name);
+    isProcedureCacheDirty = true;
+}
+
+void DatabaseMenu::addDiagnosisMenu()
+{
+    int choice, visit, idVisit, page = 0;
+    std::string description;
+
+    std::cout << "\nEnter visit for diagnosis first." << std::endl;
+    invalidateVisits();
+    printFirstNVisits(page * entitiesOnPage, entitiesOnPage);
+    while (true)
+    {
+        std::cout << "\n1. Print next visits" << std::endl;
+        std::cout << "2. Continue diagnosis creating" << std::endl;
+        std::cout << "0. Cancel creating" << std::endl;
+        std::cin >> choice;
+
+        switch (choice)
+        {
+            case 1:
+                printFirstNVisits(++page * entitiesOnPage, entitiesOnPage);
+                break;
+            case 2:
+            {
+                std::cout << "\nChoose visit to give diagnosis: ";
+                std::cin >> visit;
+
+                auto visitObj = visits.get(visit - 1);
+                idVisit = visitObj.getId();
+
+                std::cout << "\nEnter diagnosis description." << std::endl;
+                description = readLineFromConsole();
+
+                databaseFacade->addDiagnosis(idVisit, description);
+                isDiagnosisCacheDirty = true;
+                return;
+            }
+            case 0:
+                return;
+            default:
+                std::cout << "Incorrect input. Please, choose number "
+                             "from 0 to 2.\n";
+        }
+    }
+}
+
+void DatabaseMenu::addVisitMenu()
+{
+    int idPatient, idDoctor, patient, doctor;
+    std::string complaints, dateVisit, dateDischarge, dateClose, yearMonthDay,
+        hoursMin;
+
+    std::cout << "\nChoose patient." << std::endl;
+    invalidatePatients();
+    patients.printCacheMapNormal();
+    std::cout << "Enter patient's number: ";
+    std::cin >> patient;
+    auto patientObj = patients.get(patient - 1);
+    idPatient = patientObj.getId();
+
+    std::cout << "\nChoose doctor." << std::endl;
+    invalidateDoctors();
+    doctors.printCacheMapNormal();
+    std::cout << "Enter doctor's number: ";
+    std::cin >> doctor;
+    auto doctorObj = doctors.get(doctor - 1);
+    idDoctor = doctorObj.getId();
+
+    std::cout << "\nEnter patient's complaints:" << std::endl;
+    complaints = readLineFromConsole();
+
+    std::cout << "\nEnter date of visit." << std::endl;
+    std::cout << "Enter year, month and day (format - yyyy-mm-dd): "
+              << std::endl;
+    std::cin >> yearMonthDay;
+    std::cout << "Enter time (format - hh:mm): " << std::endl;
+    std::cin >> hoursMin;
+    dateVisit = yearMonthDay + " " + hoursMin;
+
+    std::cout << "\nEnter date of discharge." << std::endl;
+    std::cout << "Enter year, month and day (format - yyyy-mm-dd): "
+              << std::endl;
+    std::cin >> yearMonthDay;
+    std::cout << "Enter time (format - hh:mm): " << std::endl;
+    std::cin >> hoursMin;
+    dateDischarge = yearMonthDay + " " + hoursMin;
+
+    std::cout << "\nEnter date of close." << std::endl;
+    std::cout << "Enter year, month and day (format - yyyy-mm-dd): "
+              << std::endl;
+    std::cin >> yearMonthDay;
+    std::cout << "Enter time (format - hh:mm): " << std::endl;
+    std::cin >> hoursMin;
+    dateClose = yearMonthDay + " " + hoursMin;
+
+    databaseFacade->addVisit(
+        idPatient, idDoctor, complaints, DateTime(dateVisit, false),
+        DateTime(dateDischarge, false), DateTime(dateClose, false));
+    isVisitCacheDirty = true;
+}
+
+void DatabaseMenu::addPatientMenu()
+{
+    std::string lastName, firstName, middleName, city, street, building, flat,
+        address;
+
+    std::cout << "\nEnter patient's last name: ";
+    std::cin >> lastName;
+    std::cout << "Enter patient's first name: ";
+    std::cin >> firstName;
+    std::cout << "Enter patient's middle name: ";
+    std::cin >> middleName;
+    std::cout << "Enter patient's city: ";
+    std::cin >> city;
+    std::cout << "Enter patient's street: ";
+    std::cin >> street;
+    std::cout << "Enter patient's home building: ";
+    std::cin >> building;
+    std::cout << "Enter patient's home flat: ";
+    std::cin >> flat;
+    address =
+        city + ", " + street + " st., building " + building + ", flat " + flat;
+
+    databaseFacade->addPatient(lastName, firstName, middleName, address);
+    isPatientCacheDirty = true;
+}
+
+void DatabaseMenu::addSpecializationMenu()
+{
+    std::string name;
+    std::cout << "\nEnter new specialization's name: ";
+    std::cin >> name;
+
+    databaseFacade->addSpecialization(name);
+    isSpecializationCacheDirty = true;
+}
+
+void DatabaseMenu::addAppointmentMenu()
+{
+    int doctor, idDoctor, idWeekday, office, district;
+    std::string beginDate, endDate;
+
+    std::cout << "\nTo add new appointment choose doctor from list.\n";
+    invalidateDoctors();
+    doctors.printCacheMapNormal();
+    std::cout << "Enter doctor's number: ";
+    std::cin >> doctor;
+    invalidateDoctors();
+    auto doctorObj = doctors.get(doctor - 1);
+    idDoctor = doctorObj.getId();
+
+    std::cout << "Choose appointment's date." << std::endl;
+    std::cout << "Choose weekday: " << std::endl;
+    std::cout << "1. Monday\n2. Tuesday\n3. Wednesday\n4. Thursday\n5. "
+                 "Friday\n6. Saturday\n7. Sunday\n";
+    std::cin >> idWeekday;
+
+    std::cout << "Enter begin date." << std::endl;
+    std::cout << "Date format : hh:mm" << std::endl;
+    std::cin >> beginDate;
+    auto beginDateObj = DateTime(beginDate, true);
+
+    std::cout << "Enter end date." << std::endl;
+    std::cout << "Date format : hh:mm" << std::endl;
+    std::cin >> endDate;
+    auto endDateObj = DateTime(endDate, true);
+
+    std::cout << "Enter appointment's office: ";
+    std::cin >> office;
+    std::cout << "Enter appointment's disctrict: ";
+    std::cin >> district;
+
+    databaseFacade->addAppointment(idDoctor, idWeekday, beginDateObj,
+                                   endDateObj, office, district);
+    isAppointmentCacheDirty = true;
+}
+
+void DatabaseMenu::printDoctorMenu(int page)
+{
+    while (true)
+    {
+        std::cout << "\nPage " << page + 1 << std::endl;
+        std::cout << "1. Next page\n";
+        std::cout << "2. Previous page\n";
+        std::cout << "3. Print\n";
+        std::cout << "0. Back\n";
+        std::cout << "Choose action: ";
+        int choice;
+        std::cin >> choice;
+        switch (choice)
+        {
+            case 1:
+                page++;
+                break;
+            case 2:
+                if (page > 0)
+                    page--;
+                break;
+            case 3:
+                invalidateDoctors();
+                printDoctors(page);
+                break;
+            case 0:
+                std::cout << "\n";
+                return;
+            default:
+                std::cout << "Incorrect input. Please, choose number "
+                             "from 0 to 3.\n";
+        }
+    }
+}
+
+void DatabaseMenu::printPrescribedProcedureMenu(int page)
+{
+    while (1)
+    {
+        std::cout << "\nPage " << page + 1 << std::endl;
+        std::cout << "1. Next page\n";
+        std::cout << "2. Previous page\n";
+        std::cout << "3. Print\n";
+        std::cout << "0. Back\n";
+        std::cout << "Choose action: ";
+        int choice;
+        std::cin >> choice;
+        switch (choice)
+        {
+            case 1:
+                page++;
+                break;
+            case 2:
+                if (page > 0)
+                    page--;
+                break;
+            case 3:
+                invalidatePrescribedProcedures();
+                printPrescribedProcedures(page);
+                break;
+            case 0:
+                std::cout << "\n";
+                return;
+            default:
+                std::cout << "Incorrect input. Please, choose number "
+                             "from 0 to 3.\n";
+        }
+    }
+}
+
+void DatabaseMenu::printMedicationMenu(int page)
+{
+    while (1)
+    {
+        std::cout << "\nPage " << page + 1 << std::endl;
+        std::cout << "1. Next page\n";
+        std::cout << "2. Previous page\n";
+        std::cout << "3. Print\n";
+        std::cout << "0. Back\n";
+        std::cout << "Choose action: ";
+        int choice;
+        std::cin >> choice;
+        switch (choice)
+        {
+            case 1:
+                page++;
+                break;
+            case 2:
+                if (page > 0)
+                    page--;
+                break;
+            case 3:
+                invalidateMedications();
+                printMedications(page);
+                break;
+            case 0:
+                std::cout << "\n";
+                return;
+            default:
+                std::cout << "Incorrect input. Please, choose number "
+                             "from 0 to 3.\n";
+        }
+    }
+}
+
+void DatabaseMenu::printPrescribedMedicationMenu(int page)
+{
+    while (1)
+    {
+        std::cout << "\nPage " << page + 1 << std::endl;
+        std::cout << "1. Next page\n";
+        std::cout << "2. Previous page\n";
+        std::cout << "3. Print\n";
+        std::cout << "0. Back\n";
+        std::cout << "Choose action: ";
+        int choice;
+        std::cin >> choice;
+        switch (choice)
+        {
+            case 1:
+                page++;
+                break;
+            case 2:
+                if (page > 0)
+                    page--;
+                break;
+            case 3:
+                invalidatePrescribedMedications();
+                printPrescribedMedications(page);
+                break;
+            case 0:
+                std::cout << "\n";
+                return;
+            default:
+                std::cout << "Incorrect input. Please, choose number "
+                             "from 0 to 3.\n";
+        }
+    }
+}
+
+void DatabaseMenu::printProcedureMenu(int page)
+{
+    while (1)
+    {
+        std::cout << "\nPage " << page + 1 << std::endl;
+        std::cout << "1. Next page\n";
+        std::cout << "2. Previous page\n";
+        std::cout << "3. Print\n";
+        std::cout << "0. Back\n";
+        std::cout << "Choose action: ";
+        int choice;
+        std::cin >> choice;
+        switch (choice)
+        {
+            case 1:
+                page++;
+                break;
+            case 2:
+                if (page > 0)
+                    page--;
+                break;
+            case 3:
+                invalidateProcedures();
+                printProcedures(page);
+                break;
+            case 0:
+                std::cout << "\n";
+                return;
+            default:
+                std::cout << "Incorrect input. Please, choose number "
+                             "from 0 to 3.\n";
+        }
+    }
+}
+
+void DatabaseMenu::printTestResultMenu(int page)
+{
+    while (1)
+    {
+        std::cout << "\nPage " << page + 1 << std::endl;
+        std::cout << "1. Next page\n";
+        std::cout << "2. Previous page\n";
+        std::cout << "3. Print\n";
+        std::cout << "0. Back\n";
+        std::cout << "Choose action: ";
+        int choice;
+        std::cin >> choice;
+        switch (choice)
+        {
+            case 1:
+                page++;
+                break;
+            case 2:
+                if (page > 0)
+                    page--;
+                break;
+            case 3:
+                invalidateTestResults();
+                printTestResults(page);
+                break;
+            case 0:
+                std::cout << "\n";
+                return;
+            default:
+                std::cout << "Incorrect input. Please, choose number "
+                             "from 0 to 3.\n";
+        }
+    }
+}
+
+void DatabaseMenu::printTestMenu(int page)
+{
+    while (1)
+    {
+        std::cout << "\nPage " << page + 1 << std::endl;
+        std::cout << "1. Next page\n";
+        std::cout << "2. Previous page\n";
+        std::cout << "3. Print\n";
+        std::cout << "0. Back\n";
+        std::cout << "Choose action: ";
+        int choice;
+        std::cin >> choice;
+        switch (choice)
+        {
+            case 1:
+                page++;
+                break;
+            case 2:
+                if (page > 0)
+                    page--;
+                break;
+            case 3:
+                invalidateTests();
+                printTests(page);
+                break;
+            case 0:
+                std::cout << "\n";
+                return;
+            default:
+                std::cout << "Incorrect input. Please, choose number "
+                             "from 0 to 3.\n";
+        }
+    }
+}
+
+void DatabaseMenu::printDiagnosisMenu(int page)
+{
+    while (true)
+    {
+        std::cout << "\nPage " << page + 1 << std::endl;
+        std::cout << "1. Next page\n";
+        std::cout << "2. Previous page\n";
+        std::cout << "3. Print\n";
+        std::cout << "0. Back\n";
+        std::cout << "Choose action: ";
+        int choice;
+        std::cin >> choice;
+        switch (choice)
+        {
+            case 1:
+                page++;
+                break;
+            case 2:
+                if (page > 0)
+                    page--;
+                break;
+            case 3:
+                invalidateDiagnosis();
+                printDiagnosis(page);
+                break;
+            case 0:
+                std::cout << "\n";
+                return;
+            default:
+                std::cout << "Incorrect input. Please, choose number "
+                             "from 0 to 3.\n";
+        }
+    }
+}
+
+void DatabaseMenu::printVisitMenu(int page)
+{
+    while (true)
+    {
+        std::cout << "\nPage " << page + 1 << std::endl;
+        std::cout << "1. Next page\n";
+        std::cout << "2. Previous page\n";
+        std::cout << "3. Print\n";
+        std::cout << "0. Back\n";
+        std::cout << "Choose action: ";
+        int choice;
+        std::cin >> choice;
+        switch (choice)
+        {
+            case 1:
+                page++;
+                break;
+            case 2:
+                if (page > 0)
+                    page--;
+                break;
+            case 3:
+                invalidateVisits();
+                printVisits(page);
+                break;
+            case 0:
+                std::cout << "\n";
+                return;
+            default:
+                std::cout << "Incorrect input. Please, choose number "
+                             "from 0 to 3.\n";
+        }
+    }
+}
+
+void DatabaseMenu::printPatientMenu(int page)
+{
+    while (true)
+    {
+        std::cout << "\nPage " << page + 1 << std::endl;
+        std::cout << "1. Next page\n";
+        std::cout << "2. Previous page\n";
+        std::cout << "3. Print\n";
+        std::cout << "0. Back\n";
+        std::cout << "Choose action: ";
+        int choice;
+        std::cin >> choice;
+        switch (choice)
+        {
+            case 1:
+                page++;
+                break;
+            case 2:
+                if (page > 0)
+                    page--;
+                break;
+            case 3:
+                invalidatePatients();
+                printPatients(page);
+                break;
+            case 0:
+                std::cout << "\n";
+                return;
+            default:
+                std::cout << "Incorrect input. Please, choose number "
+                             "from 0 to 3.\n";
+        }
+    }
+}
+
+void DatabaseMenu::printSpecializationMenu(int page)
+{
+    while (true)
+    {
+        std::cout << "\nPage " << page + 1 << std::endl;
+        std::cout << "1. Next page\n";
+        std::cout << "2. Previous page\n";
+        std::cout << "3. Print\n";
+        std::cout << "0. Back\n";
+        std::cout << "Choose action: ";
+        int choice;
+        std::cin >> choice;
+        switch (choice)
+        {
+            case 1:
+                page++;
+                break;
+            case 2:
+                if (page > 0)
+                    page--;
+                break;
+            case 3:
+                invalidateSpecializations();
+                printSpecializations(page);
+                break;
+            case 0:
+                std::cout << "\n";
+                return;
+            default:
+                std::cout << "Incorrect input. Please, choose number "
+                             "from 0 to 3.\n";
+        }
+    }
+}
+
+void DatabaseMenu::printAppointmentMenu(int page)
+{
+    while (true)
+    {
+        std::cout << "\nPage " << page + 1 << std::endl;
+        std::cout << "1. Next page\n";
+        std::cout << "2. Previous page\n";
+        std::cout << "3. Print\n";
+        std::cout << "0. Back\n";
+        std::cout << "Choose action: ";
+        int choice;
+        std::cin >> choice;
+        switch (choice)
+        {
+            case 1:
+                page++;
+                break;
+            case 2:
+                if (page > 0)
+                    page--;
+                break;
+            case 3:
+                invalidateAppointments();
+                printAppointments(page);
+                break;
+            case 0:
+                std::cout << "\n";
+                return;
+            default:
+                std::cout << "Incorrect input. Please, choose number "
+                             "from 0 to 3.\n";
+        }
+    }
+}
+
 int DatabaseMenu::doctorActivities()
 {
     int page = 0;
@@ -131,7 +1071,7 @@ int DatabaseMenu::doctorActivities()
         std::cout << "2. Add doctor\n";
         std::cout << "3. Update doctor\n";
         std::cout << "4. Delete doctor\n";
-        std::cout << "5. Back\n";
+        std::cout << "0. Back\n";
         std::cout << "Choose action: ";
 
         int choice;
@@ -140,47 +1080,10 @@ int DatabaseMenu::doctorActivities()
         switch (choice)
         {
             case 1:
-                while (1)
-                {
-                    std::cout << "\nPage " << page + 1 << std::endl;
-                    std::cout << "1. Next page\n";
-                    std::cout << "2. Previous page\n";
-                    std::cout << "3. Print\n";
-                    std::cout << "0. Back\n";
-                    std::cout << "Choose action: ";
-                    int choice;
-                    std::cin >> choice;
-                    switch (choice)
-                    {
-                        case 1:
-                            page++;
-                            break;
-                        case 2:
-                            if (page > 0)
-                                page--;
-                            break;
-                        case 3:
-                            if (isDoctorCacheDirty)
-                            {
-                                auto doctorList =
-                                    databaseFacade->selectDoctorAll(100, 0);
-                                doctors.addMultiple(doctorList);
-                                isDoctorCacheDirty = false;
-                            }
-                            printDoctors(page);
-                            break;
-                        case 0:
-                            std::cout << "\n";
-                            return 0;
-                        default:
-                            std::cout
-                                << "Incorrect input. Please, choose number "
-                                   "from 1 to 5.\n";
-                    }
-                }
+                printDoctorMenu(page);
                 break;
             case 2:
-
+                addDoctorMenu();
                 break;
             case 3:
 
@@ -188,12 +1091,12 @@ int DatabaseMenu::doctorActivities()
             case 4:
 
                 break;
-            case 5:
+            case 0:
                 std::cout << "\n";
                 return 0;
             default:
                 std::cout << "Incorrect input. Please, choose number "
-                             "from 1 to 5.\n";
+                             "from 0 to 4.\n";
         }
     }
 }
@@ -550,14 +1453,14 @@ void DatabaseMenu::printFirstNAppointments(int start, int n)
             doctorLastName =
                 (*(doctors.getFromCacheMap(idDoctor))).getLastName();
 
-            std::cout << '\n'
-                      << count + 1 << '\n'
-                      << beginDate << " " << endDate << " " << weekday
-                      << std::endl;
+            std::cout << '\n' << count + 1 << "." << std::endl;
             std::cout << "Doctor: " << doctorLastName << " " << doctorFirstName
                       << " " << doctorMiddleName << std::endl;
+            std::cout << "Weekday: " << weekday << std::endl;
+            std::cout << "Begin time: " << beginDate << std::endl;
+            std::cout << "End time:   " << endDate << std::endl;
             std::cout << "Office: " << office << std::endl;
-            std::cout << "Disctrict: " << district << std::endl;
+            std::cout << "District: " << district << std::endl;
         }
         ++count;
     }
@@ -689,7 +1592,7 @@ int DatabaseMenu::specializationActivities()
         std::cout << "2. Add specialization\n";
         std::cout << "3. Update specialization\n";
         std::cout << "4. Delete specialization\n";
-        std::cout << "5. Back\n";
+        std::cout << "0. Back\n";
         std::cout << "Choose action: ";
 
         int choice;
@@ -698,48 +1601,10 @@ int DatabaseMenu::specializationActivities()
         switch (choice)
         {
             case 1:
-                while (1)
-                {
-                    std::cout << "\nPage " << page + 1 << std::endl;
-                    std::cout << "1. Next page\n";
-                    std::cout << "2. Previous page\n";
-                    std::cout << "3. Print\n";
-                    std::cout << "0. Back\n";
-                    std::cout << "Choose action: ";
-                    int choice;
-                    std::cin >> choice;
-                    switch (choice)
-                    {
-                        case 1:
-                            page++;
-                            break;
-                        case 2:
-                            if (page > 0)
-                                page--;
-                            break;
-                        case 3:
-                            if (isSpecializationCacheDirty)
-                            {
-                                auto specList =
-                                    databaseFacade->selectSpecializationAll(100,
-                                                                            0);
-                                specializations.addMultiple(specList);
-                                isSpecializationCacheDirty = false;
-                            }
-                            printSpecializations(page);
-                            break;
-                        case 0:
-                            std::cout << "\n";
-                            return 0;
-                        default:
-                            std::cout
-                                << "Incorrect input. Please, choose number "
-                                   "from 1 to 5.\n";
-                    }
-                }
+                printSpecializationMenu(page);
                 break;
             case 2:
-
+                addSpecializationMenu();
                 break;
             case 3:
 
@@ -747,12 +1612,12 @@ int DatabaseMenu::specializationActivities()
             case 4:
 
                 break;
-            case 5:
+            case 0:
                 std::cout << "\n";
                 return 0;
             default:
                 std::cout << "Incorrect input. Please, choose number "
-                             "from 1 to 5.\n";
+                             "from 0 to 4.\n";
         }
     }
 }
@@ -767,7 +1632,7 @@ int DatabaseMenu::appointmentActivities()
         std::cout << "2. Add appointment\n";
         std::cout << "3. Update appointment\n";
         std::cout << "4. Delete appointment\n";
-        std::cout << "5. Back\n";
+        std::cout << "0. Back\n";
         std::cout << "Choose action: ";
 
         int choice;
@@ -776,48 +1641,10 @@ int DatabaseMenu::appointmentActivities()
         switch (choice)
         {
             case 1:
-                while (1)
-                {
-                    std::cout << "\nPage " << page + 1 << std::endl;
-                    std::cout << "1. Next page\n";
-                    std::cout << "2. Previous page\n";
-                    std::cout << "3. Print\n";
-                    std::cout << "0. Back\n";
-                    std::cout << "Choose action: ";
-                    int choice;
-                    std::cin >> choice;
-                    switch (choice)
-                    {
-                        case 1:
-                            page++;
-                            break;
-                        case 2:
-                            if (page > 0)
-                                page--;
-                            break;
-                        case 3:
-                            if (isAppointmentCacheDirty)
-                            {
-                                auto appList =
-                                    databaseFacade->selectAppointmentAll(100,
-                                                                         0);
-                                appointments.addMultiple(appList);
-                                isAppointmentCacheDirty = false;
-                            }
-                            printAppointments(page);
-                            break;
-                        case 0:
-                            std::cout << "\n";
-                            return 0;
-                        default:
-                            std::cout
-                                << "Incorrect input. Please, choose number "
-                                   "from 1 to 5.\n";
-                    }
-                }
+                printAppointmentMenu(page);
                 break;
             case 2:
-
+                addAppointmentMenu();
                 break;
             case 3:
 
@@ -825,12 +1652,12 @@ int DatabaseMenu::appointmentActivities()
             case 4:
 
                 break;
-            case 5:
+            case 0:
                 std::cout << "\n";
                 return 0;
             default:
                 std::cout << "Incorrect input. Please, choose number "
-                             "from 1 to 5.\n";
+                             "from 0 to 4.\n";
         }
     }
 }
@@ -845,7 +1672,7 @@ int DatabaseMenu::patientActivities()
         std::cout << "2. Add patient\n";
         std::cout << "3. Update patient\n";
         std::cout << "4. Delete patient\n";
-        std::cout << "5. Back\n";
+        std::cout << "0. Back\n";
         std::cout << "Choose action: ";
 
         int choice;
@@ -854,47 +1681,10 @@ int DatabaseMenu::patientActivities()
         switch (choice)
         {
             case 1:
-                while (1)
-                {
-                    std::cout << "\nPage " << page + 1 << std::endl;
-                    std::cout << "1. Next page\n";
-                    std::cout << "2. Previous page\n";
-                    std::cout << "3. Print\n";
-                    std::cout << "0. Back\n";
-                    std::cout << "Choose action: ";
-                    int choice;
-                    std::cin >> choice;
-                    switch (choice)
-                    {
-                        case 1:
-                            page++;
-                            break;
-                        case 2:
-                            if (page > 0)
-                                page--;
-                            break;
-                        case 3:
-                            if (isPatientCacheDirty)
-                            {
-                                auto patList =
-                                    databaseFacade->selectPatientAll(100, 0);
-                                patients.addMultiple(patList);
-                                isPatientCacheDirty = false;
-                            }
-                            printPatients(page);
-                            break;
-                        case 0:
-                            std::cout << "\n";
-                            return 0;
-                        default:
-                            std::cout
-                                << "Incorrect input. Please, choose number "
-                                   "from 1 to 5.\n";
-                    }
-                }
+                printPatientMenu(page);
                 break;
             case 2:
-
+                addPatientMenu();
                 break;
             case 3:
 
@@ -902,12 +1692,12 @@ int DatabaseMenu::patientActivities()
             case 4:
 
                 break;
-            case 5:
+            case 0:
                 std::cout << "\n";
                 return 0;
             default:
                 std::cout << "Incorrect input. Please, choose number "
-                             "from 1 to 5.\n";
+                             "from 0 to 4.\n";
         }
     }
 }
@@ -922,7 +1712,7 @@ int DatabaseMenu::visitActivities()
         std::cout << "2. Add visit\n";
         std::cout << "3. Update visit\n";
         std::cout << "4. Delete visit\n";
-        std::cout << "5. Back\n";
+        std::cout << "0. Back\n";
         std::cout << "Choose action: ";
 
         int choice;
@@ -931,47 +1721,10 @@ int DatabaseMenu::visitActivities()
         switch (choice)
         {
             case 1:
-                while (1)
-                {
-                    std::cout << "\nPage " << page + 1 << std::endl;
-                    std::cout << "1. Next page\n";
-                    std::cout << "2. Previous page\n";
-                    std::cout << "3. Print\n";
-                    std::cout << "0. Back\n";
-                    std::cout << "Choose action: ";
-                    int choice;
-                    std::cin >> choice;
-                    switch (choice)
-                    {
-                        case 1:
-                            page++;
-                            break;
-                        case 2:
-                            if (page > 0)
-                                page--;
-                            break;
-                        case 3:
-                            if (isVisitCacheDirty)
-                            {
-                                auto visitsList =
-                                    databaseFacade->selectVisitAll(100, 0);
-                                visits.addMultiple(visitsList);
-                                isVisitCacheDirty = false;
-                            }
-                            printVisits(page);
-                            break;
-                        case 0:
-                            std::cout << "\n";
-                            return 0;
-                        default:
-                            std::cout
-                                << "Incorrect input. Please, choose number "
-                                   "from 1 to 5.\n";
-                    }
-                }
+                printVisitMenu(page);
                 break;
             case 2:
-
+                addVisitMenu();
                 break;
             case 3:
 
@@ -979,12 +1732,12 @@ int DatabaseMenu::visitActivities()
             case 4:
 
                 break;
-            case 5:
+            case 0:
                 std::cout << "\n";
                 return 0;
             default:
                 std::cout << "Incorrect input. Please, choose number "
-                             "from 1 to 5.\n";
+                             "from 0 to 4.\n";
         }
     }
 }
@@ -999,7 +1752,7 @@ int DatabaseMenu::prescribedMedicationActivities()
         std::cout << "2. Add prescribed medication\n";
         std::cout << "3. Update prescribed medication\n";
         std::cout << "4. Delete prescribed medication\n";
-        std::cout << "5. Back\n";
+        std::cout << "0. Back\n";
         std::cout << "Choose action: ";
 
         int choice;
@@ -1008,47 +1761,10 @@ int DatabaseMenu::prescribedMedicationActivities()
         switch (choice)
         {
             case 1:
-                while (1)
-                {
-                    std::cout << "\nPage " << page + 1 << std::endl;
-                    std::cout << "1. Next page\n";
-                    std::cout << "2. Previous page\n";
-                    std::cout << "3. Print\n";
-                    std::cout << "0. Back\n";
-                    std::cout << "Choose action: ";
-                    int choice;
-                    std::cin >> choice;
-                    switch (choice)
-                    {
-                        case 1:
-                            page++;
-                            break;
-                        case 2:
-                            if (page > 0)
-                                page--;
-                            break;
-                        case 3:
-                            if (isPrMedCacheDirty)
-                            {
-                                auto prMedsList =
-                                    databaseFacade->selectPrMedAll(100, 0);
-                                prmeds.addMultiple(prMedsList);
-                                isPrMedCacheDirty = false;
-                            }
-                            printPrescribedMedications(page);
-                            break;
-                        case 0:
-                            std::cout << "\n";
-                            return 0;
-                        default:
-                            std::cout
-                                << "Incorrect input. Please, choose number "
-                                   "from 1 to 5.\n";
-                    }
-                }
+                printPrescribedMedicationMenu(page);
                 break;
             case 2:
-
+                addPrescribedMedicationMenu();
                 break;
             case 3:
 
@@ -1056,12 +1772,12 @@ int DatabaseMenu::prescribedMedicationActivities()
             case 4:
 
                 break;
-            case 5:
+            case 0:
                 std::cout << "\n";
                 return 0;
             default:
                 std::cout << "Incorrect input. Please, choose number "
-                             "from 1 to 5.\n";
+                             "from 0 to 4.\n";
         }
     }
 }
@@ -1076,7 +1792,7 @@ int DatabaseMenu::medicationActivities()
         std::cout << "2. Add medication\n";
         std::cout << "3. Update medication\n";
         std::cout << "4. Delete medication\n";
-        std::cout << "5. Back\n";
+        std::cout << "0. Back\n";
         std::cout << "Choose action: ";
 
         int choice;
@@ -1085,48 +1801,10 @@ int DatabaseMenu::medicationActivities()
         switch (choice)
         {
             case 1:
-                while (1)
-                {
-                    std::cout << "\nPage " << page + 1 << std::endl;
-                    std::cout << "1. Next page\n";
-                    std::cout << "2. Previous page\n";
-                    std::cout << "3. Print\n";
-                    std::cout << "0. Back\n";
-                    std::cout << "Choose action: ";
-                    int choice;
-                    std::cin >> choice;
-                    switch (choice)
-                    {
-                        case 1:
-                            page++;
-                            break;
-                        case 2:
-                            if (page > 0)
-                                page--;
-                            break;
-                        case 3:
-
-                            if (isMedicationCacheDirty)
-                            {
-                                auto medicationsList =
-                                    databaseFacade->selectMedicationAll(100, 0);
-                                medications.addMultiple(medicationsList);
-                                isMedicationCacheDirty = false;
-                            }
-                            printMedications(page);
-                            break;
-                        case 0:
-                            std::cout << "\n";
-                            return 0;
-                        default:
-                            std::cout
-                                << "Incorrect input. Please, choose number "
-                                   "from 1 to 5.\n";
-                    }
-                }
+                printMedicationMenu(page);
                 break;
             case 2:
-
+                addMedicationMenu();
                 break;
             case 3:
 
@@ -1134,12 +1812,12 @@ int DatabaseMenu::medicationActivities()
             case 4:
 
                 break;
-            case 5:
+            case 0:
                 std::cout << "\n";
                 return 0;
             default:
                 std::cout << "Incorrect input. Please, choose number "
-                             "from 1 to 5.\n";
+                             "from 0 to 4.\n";
         }
     }
 }
@@ -1154,7 +1832,7 @@ int DatabaseMenu::prescribedProcedureActivities()
         std::cout << "2. Add prescribed procedure\n";
         std::cout << "3. Update prescribed procedure\n";
         std::cout << "4. Delete prescribed procedure\n";
-        std::cout << "5. Back\n";
+        std::cout << "0. Back\n";
         std::cout << "Choose action: ";
 
         int choice;
@@ -1163,47 +1841,10 @@ int DatabaseMenu::prescribedProcedureActivities()
         switch (choice)
         {
             case 1:
-                while (1)
-                {
-                    std::cout << "\nPage " << page + 1 << std::endl;
-                    std::cout << "1. Next page\n";
-                    std::cout << "2. Previous page\n";
-                    std::cout << "3. Print\n";
-                    std::cout << "0. Back\n";
-                    std::cout << "Choose action: ";
-                    int choice;
-                    std::cin >> choice;
-                    switch (choice)
-                    {
-                        case 1:
-                            page++;
-                            break;
-                        case 2:
-                            if (page > 0)
-                                page--;
-                            break;
-                        case 3:
-                            if (isPrProcCacheDirty)
-                            {
-                                auto prprocsList =
-                                    databaseFacade->selectPrProcAll(100, 0);
-                                prprocs.addMultiple(prprocsList);
-                                isPrProcCacheDirty = false;
-                            }
-                            printPrescribedProcedures(page);
-                            break;
-                        case 0:
-                            std::cout << "\n";
-                            return 0;
-                        default:
-                            std::cout
-                                << "Incorrect input. Please, choose number "
-                                   "from 1 to 5.\n";
-                    }
-                }
+                printPrescribedProcedureMenu(page);
                 break;
             case 2:
-
+                addPrescribedProcedureMenu();
                 break;
             case 3:
 
@@ -1211,12 +1852,12 @@ int DatabaseMenu::prescribedProcedureActivities()
             case 4:
 
                 break;
-            case 5:
+            case 0:
                 std::cout << "\n";
                 return 0;
             default:
                 std::cout << "Incorrect input. Please, choose number "
-                             "from 1 to 5.\n";
+                             "from 0 to 4.\n";
         }
     }
 }
@@ -1231,7 +1872,7 @@ int DatabaseMenu::procedureActivities()
         std::cout << "2. Add procedure\n";
         std::cout << "3. Update procedure\n";
         std::cout << "4. Delete procedure\n";
-        std::cout << "5. Back\n";
+        std::cout << "0. Back\n";
         std::cout << "Choose action: ";
 
         int choice;
@@ -1240,47 +1881,10 @@ int DatabaseMenu::procedureActivities()
         switch (choice)
         {
             case 1:
-                while (1)
-                {
-                    std::cout << "\nPage " << page + 1 << std::endl;
-                    std::cout << "1. Next page\n";
-                    std::cout << "2. Previous page\n";
-                    std::cout << "3. Print\n";
-                    std::cout << "0. Back\n";
-                    std::cout << "Choose action: ";
-                    int choice;
-                    std::cin >> choice;
-                    switch (choice)
-                    {
-                        case 1:
-                            page++;
-                            break;
-                        case 2:
-                            if (page > 0)
-                                page--;
-                            break;
-                        case 3:
-                            if (isProcedureCacheDirty)
-                            {
-                                auto proceduresList =
-                                    databaseFacade->selectProcedureAll(100, 0);
-                                procedures.addMultiple(proceduresList);
-                                isProcedureCacheDirty = false;
-                            }
-                            printProcedures(page);
-                            break;
-                        case 0:
-                            std::cout << "\n";
-                            return 0;
-                        default:
-                            std::cout
-                                << "Incorrect input. Please, choose number "
-                                   "from 1 to 5.\n";
-                    }
-                }
+                printProcedureMenu(page);
                 break;
             case 2:
-
+                addProcedureMenu();
                 break;
             case 3:
 
@@ -1288,12 +1892,12 @@ int DatabaseMenu::procedureActivities()
             case 4:
 
                 break;
-            case 5:
+            case 0:
                 std::cout << "\n";
                 return 0;
             default:
                 std::cout << "Incorrect input. Please, choose number "
-                             "from 1 to 5.\n";
+                             "from 0 to 4.\n";
         }
     }
 }
@@ -1308,7 +1912,7 @@ int DatabaseMenu::testResultActivities()
         std::cout << "2. Add test result\n";
         std::cout << "3. Update test result\n";
         std::cout << "4. Delete test result\n";
-        std::cout << "5. Back\n";
+        std::cout << "0. Back\n";
         std::cout << "Choose action: ";
 
         int choice;
@@ -1317,47 +1921,10 @@ int DatabaseMenu::testResultActivities()
         switch (choice)
         {
             case 1:
-                while (1)
-                {
-                    std::cout << "\nPage " << page + 1 << std::endl;
-                    std::cout << "1. Next page\n";
-                    std::cout << "2. Previous page\n";
-                    std::cout << "3. Print\n";
-                    std::cout << "0. Back\n";
-                    std::cout << "Choose action: ";
-                    int choice;
-                    std::cin >> choice;
-                    switch (choice)
-                    {
-                        case 1:
-                            page++;
-                            break;
-                        case 2:
-                            if (page > 0)
-                                page--;
-                            break;
-                        case 3:
-                            if (isTestResultCacheDirty)
-                            {
-                                auto testResultsList =
-                                    databaseFacade->selectTestResultAll(100, 0);
-                                testResults.addMultiple(testResultsList);
-                                isTestResultCacheDirty = false;
-                            }
-                            printTestResults(page);
-                            break;
-                        case 0:
-                            std::cout << "\n";
-                            return 0;
-                        default:
-                            std::cout
-                                << "Incorrect input. Please, choose number "
-                                   "from 1 to 5.\n";
-                    }
-                }
+                printTestResultMenu(page);
                 break;
             case 2:
-
+                addTestResultMenu();
                 break;
             case 3:
 
@@ -1365,12 +1932,12 @@ int DatabaseMenu::testResultActivities()
             case 4:
 
                 break;
-            case 5:
+            case 0:
                 std::cout << "\n";
                 return 0;
             default:
                 std::cout << "Incorrect input. Please, choose number "
-                             "from 1 to 5.\n";
+                             "from 0 to 4.\n";
         }
     }
 }
@@ -1385,7 +1952,7 @@ int DatabaseMenu::testActivities()
         std::cout << "2. Add test\n";
         std::cout << "3. Update test\n";
         std::cout << "4. Delete test\n";
-        std::cout << "5. Back\n";
+        std::cout << "0. Back\n";
         std::cout << "Choose action: ";
 
         int choice;
@@ -1394,47 +1961,10 @@ int DatabaseMenu::testActivities()
         switch (choice)
         {
             case 1:
-                while (1)
-                {
-                    std::cout << "\nPage " << page + 1 << std::endl;
-                    std::cout << "1. Next page\n";
-                    std::cout << "2. Previous page\n";
-                    std::cout << "3. Print\n";
-                    std::cout << "0. Back\n";
-                    std::cout << "Choose action: ";
-                    int choice;
-                    std::cin >> choice;
-                    switch (choice)
-                    {
-                        case 1:
-                            page++;
-                            break;
-                        case 2:
-                            if (page > 0)
-                                page--;
-                            break;
-                        case 3:
-                            if (isTestCacheDirty)
-                            {
-                                auto testsList =
-                                    databaseFacade->selectTestAll(100, 0);
-                                tests.addMultiple(testsList);
-                                isTestCacheDirty = false;
-                            }
-                            printTests(page);
-                            break;
-                        case 0:
-                            std::cout << "\n";
-                            return 0;
-                        default:
-                            std::cout
-                                << "Incorrect input. Please, choose number "
-                                   "from 1 to 5.\n";
-                    }
-                }
+                printTestMenu(page);
                 break;
             case 2:
-
+                addTestMenu();
                 break;
             case 3:
 
@@ -1442,12 +1972,12 @@ int DatabaseMenu::testActivities()
             case 4:
 
                 break;
-            case 5:
+            case 0:
                 std::cout << "\n";
                 return 0;
             default:
                 std::cout << "Incorrect input. Please, choose number "
-                             "from 1 to 5.\n";
+                             "from 0 to 4.\n";
         }
     }
 }
@@ -1462,7 +1992,7 @@ int DatabaseMenu::diagnosisActivities()
         std::cout << "2. Add diagnosis\n";
         std::cout << "3. Update diagnosis\n";
         std::cout << "4. Delete diagnosis\n";
-        std::cout << "5. Back\n";
+        std::cout << "0. Back\n";
         std::cout << "Choose action: ";
 
         int choice;
@@ -1471,47 +2001,10 @@ int DatabaseMenu::diagnosisActivities()
         switch (choice)
         {
             case 1:
-                while (1)
-                {
-                    std::cout << "\nPage " << page + 1 << std::endl;
-                    std::cout << "1. Next page\n";
-                    std::cout << "2. Previous page\n";
-                    std::cout << "3. Print\n";
-                    std::cout << "0. Back\n";
-                    std::cout << "Choose action: ";
-                    int choice;
-                    std::cin >> choice;
-                    switch (choice)
-                    {
-                        case 1:
-                            page++;
-                            break;
-                        case 2:
-                            if (page > 0)
-                                page--;
-                            break;
-                        case 3:
-                            if (isDiagnosisCacheDirty)
-                            {
-                                auto diagnosisList =
-                                    databaseFacade->selectDiagnosisAll(100, 0);
-                                diagnosis.addMultiple(diagnosisList);
-                                isDiagnosisCacheDirty = false;
-                            }
-                            printDiagnosis(page);
-                            break;
-                        case 0:
-                            std::cout << "\n";
-                            return 0;
-                        default:
-                            std::cout
-                                << "Incorrect input. Please, choose number "
-                                   "from 1 to 5.\n";
-                    }
-                }
+                printDiagnosisMenu(page);
                 break;
             case 2:
-
+                addDiagnosisMenu();
                 break;
             case 3:
 
@@ -1519,12 +2012,20 @@ int DatabaseMenu::diagnosisActivities()
             case 4:
 
                 break;
-            case 5:
+            case 0:
                 std::cout << "\n";
                 return 0;
             default:
                 std::cout << "Incorrect input. Please, choose number "
-                             "from 1 to 5.\n";
+                             "from 0 to 4.\n";
         }
     }
+}
+
+std::string readLineFromConsole()
+{
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::string input;
+    std::getline(std::cin, input);
+    return input;
 }

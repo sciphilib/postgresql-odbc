@@ -73,6 +73,45 @@ private:
     void printPrescribedMedications(int page);
     void printFirstNPrescribedMedications(int start, int n);
 
+    void invalidateSpecializations();
+    void invalidateDoctors();
+    void invalidateAppointments();
+    void invalidatePatients();
+    void invalidateVisits();
+    void invalidateDiagnosis();
+    void invalidateTests();
+    void invalidateTestResults();
+    void invalidateProcedures();
+    void invalidatePrescribedProcedures();
+    void invalidateMedications();
+    void invalidatePrescribedMedications();
+
+    void addDoctorMenu();
+    void addSpecializationMenu();
+    void addAppointmentMenu();
+    void addPatientMenu();
+    void addVisitMenu();
+    void addDiagnosisMenu();
+    void addTestMenu();
+    void addTestResultMenu();
+    void addProcedureMenu();
+    void addPrescribedProcedureMenu();
+    void addMedicationMenu();
+    void addPrescribedMedicationMenu();
+
+    void printDoctorMenu(int page);
+    void printSpecializationMenu(int page);
+    void printAppointmentMenu(int page);
+    void printPatientMenu(int page);
+    void printVisitMenu(int page);
+    void printDiagnosisMenu(int page);
+    void printTestMenu(int page);
+    void printTestResultMenu(int page);
+    void printProcedureMenu(int page);
+    void printPrescribedProcedureMenu(int page);
+    void printMedicationMenu(int page);
+    void printPrescribedMedicationMenu(int page);
+
     DatabaseCache<Appointment> appointments;
     DatabaseCache<Diagnosis> diagnosis;
     DatabaseCache<Doctor> doctors;
