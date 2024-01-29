@@ -21,28 +21,6 @@ public:
                          std::forward_as_tuple(object));
     }
 
-    void print() const
-    {
-        int num = 0;
-        for (const auto& i : cache)
-        {
-            std::cout << num++ << ". ";
-            i.print();
-            std::cout << std::endl;
-        }
-    }
-
-    void printNormal() const
-    {
-        int num = 0;
-        for (const auto& i : cache)
-        {
-            std::cout << num++ << ". ";
-            i.printNormal();
-            std::cout << std::endl;
-        }
-    }
-
     void printCacheMap() const
     {
         int num = 0;
@@ -72,14 +50,6 @@ public:
         }
     }
 
-    void addMultiple(const std::vector<T>& objects)
-    {
-        for (const auto& object : objects)
-        {
-            cache.push_back(object);
-        }
-    }
-
     std::optional<T> getFromCacheMap(int id)
     {
         auto it = cacheMap.find(id);
@@ -104,6 +74,5 @@ public:
     void removeFromCacheMap(int id) { cacheMap.erase(id); }
 
 private:
-    std::vector<T> cache;
     std::unordered_map<int, T> cacheMap;
 };

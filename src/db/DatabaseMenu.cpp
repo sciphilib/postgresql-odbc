@@ -431,7 +431,8 @@ void DatabaseMenu::addTestResultMenu()
                 idTest = testObj.getId();
 
                 std::cout << "\nWrite test result:";
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
+                                '\n');
                 result = readLineFromConsole();
 
                 databaseFacade->addTestResult(idVisit, idTest, result);
@@ -500,7 +501,8 @@ void DatabaseMenu::addDiagnosisMenu()
                 idVisit = visitObj.getId();
 
                 std::cout << "\nEnter diagnosis description:" << std::endl;
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
+                                '\n');
                 description = readLineFromConsole();
 
                 databaseFacade->addDiagnosis(idVisit, description);
@@ -675,6 +677,174 @@ void DatabaseMenu::deletePatientMenu(int page)
 
     patients.removeFromCacheMap(idPatient);
     databaseFacade->deletePatient(idPatient);
+}
+
+void DatabaseMenu::updateDoctorMenu(int page)
+{
+    bool isEnter = false;
+    int choice, doctor, spec, idSpec;
+    std::string lastName, firstName, middleName;
+
+    std::cout << "\nChoose doctor you want to update\n";
+    printDoctorMenu(page);
+    std::cout << "\nEnter doctor's number to update:\n";
+    std::cin >> doctor;
+    auto& doctorObj = doctors.get(doctor - 1);
+
+    while (!isEnter)
+    {
+        std::cout << "\nChoose what you want to update:\n";
+        std::cout << "1. Last name\n";
+        std::cout << "2. First name\n";
+        std::cout << "3. Middle name\n";
+        std::cout << "4. Specification\n";
+        std::cout << "0. Back\n";
+        std::cin >> choice;
+
+        switch (choice)
+        {
+            case 1:
+                std::cout << "\nPrevious last name was: "
+                          << doctorObj.getLastName() << '\n';
+                std::cout << "\nEnter new last name: ";
+                std::cin >> lastName;
+
+                doctorObj.setLastName(lastName);
+
+                break;
+            case 2:
+                std::cout << "\nPrevious first name was: "
+                          << doctorObj.getFirstName() << '\n';
+                std::cout << "\nEnter new first name: ";
+                std::cin >> firstName;
+
+                doctorObj.setFirstName(firstName);
+
+                break;
+            case 3:
+                std::cout << "\nPrevious middle name was: "
+                          << doctorObj.getMiddleName() << '\n';
+                std::cout << "\nEnter new middle name: ";
+                std::cin >> middleName;
+
+                doctorObj.setMiddleName(middleName);
+
+                break;
+            case 4:
+            {
+                std::cout
+                    << "\nPrevious specialization was: "
+                    << specializations.get(doctorObj.getIdSpec() - 1).getName()
+                    << '\n';
+
+                invalidateSpecializations();
+                specializations.printCacheMapNormal();
+
+                std::cout << "\nEnter new specialization number: ";
+                std::cin >> spec;
+
+                auto specObj = specializations.get(spec - 1);
+                idSpec = specObj.getId();
+                doctorObj.setIdSpec(idSpec);
+
+                break;
+            }
+            case 0:
+                std::cout << "\n";
+                isEnter = true;
+                break;
+            default:
+                std::cout << "Incorrect input. Please, choose number "
+                             "from 0 to 4.\n";
+        }
+    }
+
+    databaseFacade->updateDoctor(doctorObj.getId(), doctorObj);
+}
+
+void DatabaseMenu::updatePatientMenu(int page)
+{
+    bool isEnter = false;
+    int choice, patient, idPatient;
+    std::string lastName, firstName, middleName, city, street, building, flat,
+        address;
+
+    std::cout << "\nChoose patient you want to update\n";
+    printPatientMenu(page);
+    std::cout << "\nEnter patient's number to update:\n";
+    std::cin >> patient;
+    auto& patientObj = patients.get(patient - 1);
+
+    while (!isEnter)
+    {
+        std::cout << "\nChoose what you want to update:\n";
+        std::cout << "1. Last name\n";
+        std::cout << "2. First name\n";
+        std::cout << "3. Middle name\n";
+        std::cout << "4. Address\n";
+        std::cout << "0. Back\n";
+        std::cin >> choice;
+
+        switch (choice)
+        {
+            case 1:
+                std::cout << "\nPrevious last name was: "
+                          << patientObj.getLastName() << '\n';
+                std::cout << "\nEnter new last name: ";
+                std::cin >> lastName;
+
+                patientObj.setLastName(lastName);
+
+                break;
+            case 2:
+                std::cout << "\nPrevious first name was: "
+                          << patientObj.getFirstName() << '\n';
+                std::cout << "\nEnter new first name: ";
+                std::cin >> firstName;
+
+                patientObj.setFirstName(firstName);
+
+                break;
+            case 3:
+                std::cout << "\nPrevious middle name was: "
+                          << patientObj.getMiddleName() << '\n';
+                std::cout << "\nEnter new middle name: ";
+                std::cin >> middleName;
+
+                patientObj.setMiddleName(middleName);
+
+                break;
+            case 4:
+            {
+                std::cout << "\nPrevious address name was: "
+                          << patientObj.getAddress() << '\n';
+
+                std::cout << "Enter new patient's city:" << std::endl;
+                std::cin >> city;
+                std::cout << "Enter patient's street:" << std::endl;
+                std::cin >> street;
+                std::cout << "Enter patient's home building:" << std::endl;
+                std::cin >> building;
+                std::cout << "Enter patient's home flat:" << std::endl;
+                std::cin >> flat;
+                address = city + ", " + street + " st., building " + building +
+                          ", flat " + flat;
+
+                patientObj.setAddress(address);
+
+                break;
+            }
+            case 0:
+                std::cout << "\n";
+                isEnter = true;
+                break;
+            default:
+                std::cout << "Incorrect input. Please, choose number "
+                             "from 0 to 4.\n";
+        }
+    }
+
+    databaseFacade->updatePatient(patientObj.getId(), patientObj);
 }
 
 void DatabaseMenu::printDoctorMenu(int page)
@@ -1122,7 +1292,7 @@ int DatabaseMenu::doctorActivities()
                 addDoctorMenu();
                 break;
             case 3:
-
+                updateDoctorMenu(page);
                 break;
             case 4:
                 deleteDoctorMenu(page);
@@ -1723,7 +1893,7 @@ int DatabaseMenu::patientActivities()
                 addPatientMenu();
                 break;
             case 3:
-
+                updatePatientMenu(page);
                 break;
             case 4:
                 deletePatientMenu(page);
