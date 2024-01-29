@@ -112,6 +112,9 @@ private:
     void printMedicationMenu(int page);
     void printPrescribedMedicationMenu(int page);
 
+    void deleteDoctorMenu(int page);
+    void deletePatientMenu(int page);
+
     DatabaseCache<Appointment> appointments;
     DatabaseCache<Diagnosis> diagnosis;
     DatabaseCache<Doctor> doctors;
