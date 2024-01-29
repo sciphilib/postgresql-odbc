@@ -178,6 +178,7 @@ void DatabaseMenu::invalidateDoctors()
 {
     if (isDoctorCacheDirty)
     {
+        std::cout << "\nINVALIDATE DOCTORS\n";
         auto doctorList = databaseFacade->selectDoctorAll(100, 0);
         doctors.addMultiple(doctorList);
         isDoctorCacheDirty = false;
@@ -330,6 +331,7 @@ void DatabaseMenu::addMedicationMenu()
     std::string name;
 
     std::cout << "\nEnter medication's name:";
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     name = readLineFromConsole();
 
     databaseFacade->addMedication(name);
@@ -429,6 +431,7 @@ void DatabaseMenu::addTestResultMenu()
                 idTest = testObj.getId();
 
                 std::cout << "\nWrite test result:";
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 result = readLineFromConsole();
 
                 databaseFacade->addTestResult(idVisit, idTest, result);
@@ -451,6 +454,7 @@ void DatabaseMenu::addTestMenu()
     std::cout << "\nEnter test name:";
     name = readLineFromConsole();
 
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     databaseFacade->addTest(name);
     isTestCacheDirty = true;
 }
@@ -460,6 +464,7 @@ void DatabaseMenu::addProcedureMenu()
     std::string name;
 
     std::cout << "\nEnter procedure name:";
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     name = readLineFromConsole();
 
     databaseFacade->addProcedure(name);
@@ -494,7 +499,8 @@ void DatabaseMenu::addDiagnosisMenu()
                 auto visitObj = visits.get(visit - 1);
                 idVisit = visitObj.getId();
 
-                std::cout << "\nEnter diagnosis description." << std::endl;
+                std::cout << "\nEnter diagnosis description:" << std::endl;
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 description = readLineFromConsole();
 
                 databaseFacade->addDiagnosis(idVisit, description);
@@ -533,6 +539,7 @@ void DatabaseMenu::addVisitMenu()
     idDoctor = doctorObj.getId();
 
     std::cout << "\nEnter patient's complaints:" << std::endl;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     complaints = readLineFromConsole();
 
     std::cout << "\nEnter date of visit." << std::endl;
@@ -576,14 +583,15 @@ void DatabaseMenu::addPatientMenu()
     std::cin >> firstName;
     std::cout << "Enter patient's middle name: ";
     std::cin >> middleName;
-    std::cout << "Enter patient's city: ";
-    std::cin >> city;
-    std::cout << "Enter patient's street: ";
-    std::cin >> street;
-    std::cout << "Enter patient's home building: ";
-    std::cin >> building;
-    std::cout << "Enter patient's home flat: ";
-    std::cin >> flat;
+    std::cout << "Enter patient's city:" << std::endl;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    city = readLineFromConsole();
+    std::cout << "Enter patient's street:" << std::endl;
+    street = readLineFromConsole();
+    std::cout << "Enter patient's home building:" << std::endl;
+    building = readLineFromConsole();
+    std::cout << "Enter patient's home flat:" << std::endl;
+    flat = readLineFromConsole();
     address =
         city + ", " + street + " st., building " + building + ", flat " + flat;
 
@@ -639,6 +647,34 @@ void DatabaseMenu::addAppointmentMenu()
     databaseFacade->addAppointment(idDoctor, idWeekday, beginDateObj,
                                    endDateObj, office, district);
     isAppointmentCacheDirty = true;
+}
+
+void DatabaseMenu::deleteDoctorMenu(int page)
+{
+    int doctor, idDoctor;
+    std::cout << "\nChoose doctor you want to delete\n";
+    printDoctorMenu(page);
+    std::cout << "\nEnter doctor's number to delete:\n";
+    std::cin >> doctor;
+    auto doctorObj = doctors.get(doctor - 1);
+    idDoctor = doctorObj.getId();
+
+    doctors.removeFromCacheMap(idDoctor);
+    databaseFacade->deleteDoctor(idDoctor);
+}
+
+void DatabaseMenu::deletePatientMenu(int page)
+{
+    int patient, idPatient;
+    std::cout << "\nChoose patient you want to delete\n";
+    printPatientMenu(page);
+    std::cout << "\nEnter patient's number to delete:\n";
+    std::cin >> patient;
+    auto patientObj = patients.get(patient - 1);
+    idPatient = patientObj.getId();
+
+    patients.removeFromCacheMap(idPatient);
+    databaseFacade->deletePatient(idPatient);
 }
 
 void DatabaseMenu::printDoctorMenu(int page)
@@ -1089,7 +1125,7 @@ int DatabaseMenu::doctorActivities()
 
                 break;
             case 4:
-
+                deleteDoctorMenu(page);
                 break;
             case 0:
                 std::cout << "\n";
@@ -1690,7 +1726,7 @@ int DatabaseMenu::patientActivities()
 
                 break;
             case 4:
-
+                deletePatientMenu(page);
                 break;
             case 0:
                 std::cout << "\n";
@@ -2024,7 +2060,6 @@ int DatabaseMenu::diagnosisActivities()
 
 std::string readLineFromConsole()
 {
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::string input;
     std::getline(std::cin, input);
     return input;
