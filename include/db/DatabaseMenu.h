@@ -115,6 +115,9 @@ private:
     void deleteDoctorMenu(int page);
     void deletePatientMenu(int page);
 
+    void updateDoctorMenu(int page);
+    void updatePatientMenu(int page);
+
     DatabaseCache<Appointment> appointments;
     DatabaseCache<Diagnosis> diagnosis;
     DatabaseCache<Doctor> doctors;
